@@ -1,0 +1,1 @@
+{"name":"Local: Exponentiation","url":"d:\\work\\red_training_exercise\\math\\Exponentiation.cpp","tests":[{"id":1715512934895,"input":"3\n3 4\n2 8\n123 123","output":""},{"id":1715513011362,"input":"1\n1 0","output":"1"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\work\\red_training_exercise\\math\\Exponentiation.cpp","group":"local","local":true}
