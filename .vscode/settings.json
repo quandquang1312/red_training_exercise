@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "iostream": "cpp",
+        "span": "cpp",
+        "numeric": "cpp",
+        "ostream": "cpp",
+        "numbers": "cpp",
+        "regex": "cpp"
+    }
+}
