@@ -4,7 +4,6 @@
 using namespace std;
 
 vector<vector<int>> adj;
-vector<bool> visited;
 vector<int> dfs_num, dfs_low, articulation, parent;
 vector<pair<int, int>> bridges;
 int timer, n, m, rootChildren, root;
@@ -50,7 +49,6 @@ void dfs(int u)
 void find_bridges()
 {
     timer = 0;
-    visited.resize(n+1, false);
     parent.resize(n+1, -1);
     dfs_low.resize(n+1, 0);
     dfs_num.resize(n+1, UNVISITED);
