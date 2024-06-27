@@ -1,1 +1,0 @@
-{"name":"Local: MTWALK","url":"d:\\work\\red_training_exercise\\grid\\MTWALK.cpp","tests":[{"id":1715011729459,"input":"5\n1 1 3 6 8\n1 2 2 5 5\n4 4 0 3 3\n8 0 2 3 4\n4 3 0 2 1","output":"2"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\work\\red_training_exercise\\grid\\MTWALK.cpp","group":"local","local":true}

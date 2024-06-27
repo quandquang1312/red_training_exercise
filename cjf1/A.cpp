@@ -1,7 +1,8 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-int n, presum[1030][1030], arr[1030][1030], ans = 0;
+int n, ans = 0;
+vector<vector<int>> presum;
 
 void solve(int x1, int y1, int x2, int y2) {
     if (x2 - x1 == 1) {
@@ -42,31 +43,14 @@ int32_t main() {
     int tc; cin >> tc;
     while (tc--) {
         cin >> n;
-        memset(presum, 0, sizeof presum);
+
+        presum.resize(n+1, vector<int>(n+1,0));
 
         for (int i=1; i<=n; i++) {
             for (int j=1; j<=n; j++) {
-                cin >> arr[i][j];
-                presum[i][j] = arr[i][j] + presum[i-1][j] + presum[i][j-1] - presum[i-1][j-1];
-            }
-        }
-
-        for (int i=2; i<=n; i+=2) {
-            for (int j=2; j<=n; j+=2) {
-                if (i == j && __builtin_popcount(i) == 1) {
-                    int q = presum[i-1][j-1] - presum[i-2][j-1] - presum[i-1][j-2] + presum[i-2][j-2];
-                    int w = presum[i-1][j] - presum[i-2][j] - presum[i-1][j-1] + presum[i-2][j-1];
-                    int a = presum[i][j-1] - presum[i-1][j-1] - presum[i][j-2] + presum[i-1][j-2];
-                    int s = presum[i][j] - presum[i-1][j] - presum[i][j-1] + presum[i-1][j-1];
-
-                    int sm = q + w + a + s;
-                    int eat = sm % 4;
-
-                    if (eat == 0) arr[i-1][j-1] = 0;
-                    if (eat == 1) arr[i-1][j] = 0;
-                    if (eat == 2) arr[i][j-1] = 0;
-                    if (eat == 3) arr[i][j] = 0;
-                }
+                char ch; cin >> ch;
+                int tmp = ch - '0';
+                presum[i][j] = tmp + presum[i-1][j] + presum[i][j-1] - presum[i-1][j-1];
             }
         }
 
