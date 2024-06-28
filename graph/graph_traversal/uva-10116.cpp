@@ -3,49 +3,42 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#define MAXN 12
-
 int r, c, st, cnt = 0;
-char color[MAXN][MAXN], grid[MAXN][MAXN];
-vector<vector<pair<int, int>>> parent;
+vector<vector<char>> grid;
+vector<vector<bool>> visited;
+vector<vector<int>> trace;
 pair<int, int> cycle_start, cycle_end;
 
 bool checkValid(int x, int y) {
-    return (x >= 0 && x < r && y >= 0 && y < c);
+    return (x >= 1 && x <= r && y >= 1 && y <= c);
 }
 
 bool dfs(pair<int, int> cell) {
     int x = cell.first, y = cell.second;
 
-    color[x][y] = 1;
+    visited[x][y] = true;
 
     int new_x = x, new_y = y;
-    if (grid[x][y] == 'S') new_x--;
-    else if (grid[x][y] == 'N') new_x++;
+    if (grid[x][y] == 'S') new_x++;
+    else if (grid[x][y] == 'N') new_x--;
     else if (grid[x][y] == 'W') new_y--;
     else if (grid[x][y] == 'E') new_y++;
 
-    cout << new_x << "-" << new_y << endl;
-
+    trace[x][y] = min(trace[x][y], cnt++);
     if (!checkValid(new_x, new_y)) {
         return false;
     }
 
-    cnt++;
-    cout << "cnt: " << cnt << endl;
-
-    if (color[new_x][new_y] == 0) {
-        parent[new_x][new_y] = {x, y};
+    if (visited[new_x][new_y] == false) {
         if (dfs({new_x, new_y})) {
             return true;
         }
-    } else if (color[new_x][new_y] == 1) {
+    } else {
         cycle_start = {new_x, new_y};
         cycle_end   = {x, y};
         return true;
     }
 
-    color[x][y] = 2;
     return false;
 }
 
@@ -58,26 +51,33 @@ int32_t main() {
         freopen("ou.txt", "w", stdout);
     #endif
 
-    cin >> r >> c >> st;
+    r = 1, c = 1, st = 1;
+    while ((cin >> r >> c >> st))
+    {
+        if (r + c + st == 0) break;
+        grid.resize(r+5, vector<char>(c+5));
+        trace.assign(r+5, vector<int>(c+5, 1e9));
+        visited.assign(r+1, vector<bool>(c+5, false));
+        cycle_start = {-1, -1};
+        cnt = 0;
 
-    parent.resize(r+1, vector<pair<int, int>>(c+1));
-    cycle_start = {-1, -1};
+        for (int i=1; i<=r; i++) {
+            for (int j=1; j<=c; j++) {
+                cin >> grid[i][j];
+            }
+        }
 
-    for (int i=0; i<r; i++) {
-        for (int j=0; j<c; j++) {
-            cin >> grid[i][j];
+        bool ret = dfs({1, st});
+
+        if (cycle_start.first != -1 && cycle_start.second != -1 && ret == true)
+        {
+            int steps = trace[cycle_start.first][cycle_start.second];
+            int loops = cnt - steps;
+            printf("%d step(s) before a loop of %d step(s)\n", steps, loops);
+        } else {
+            printf("%d step(s) to exit\n", cnt);
         }
     }
-
-    dfs({0, st-1});
-
-    if (cycle_start.first != -1 && cycle_start.second != -1)
-    {
-        cout << "I\n";
-    } else {
-        cout << "steps: " << cnt << endl;
-    }
-
 
     return 0;
 }
