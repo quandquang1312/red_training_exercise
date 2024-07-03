@@ -80,6 +80,34 @@ vector<int> primeFactor(int n, vector<int> primes) {
     return factors;
 }
 
+int binpow(int a, int b) {
+    if (a == 0) return 0;
+    if (b == 1) return a;
+
+    int res = 1;
+    while (b) {
+        if (b & 1) res = (res * a);
+        a = a * a;
+        b >>= 1;
+    }
+
+    return res;
+}
+
+// Legendre's Formula
+int legendre(int n, int p)
+{
+    int ans = 0, k = 1;
+    int pk = binpow(p, k);
+    while (pk < n) {
+        ans += n/pk;
+        k++; 
+        pk = binpow(p,k);
+    }
+
+    return ans;
+}
+
 int32_t main() {
 
     #ifdef LOCAL
