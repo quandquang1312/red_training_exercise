@@ -3,9 +3,11 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+#define int long long
+
 vector<int> primes;
 
-void linear_sieve(int n = 50000)
+void linear_sieve(int n = 50010)
 {
     vector<bool> isPrime(n+1, true);
 
@@ -20,6 +22,9 @@ void linear_sieve(int n = 50000)
 
 int32_t main()
 {
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr); cout.tie(nullptr);
+
     #ifdef LOCAL
         freopen("in.txt", "r", stdin);
         freopen("ou.txt", "w", stdout);
@@ -29,23 +34,24 @@ int32_t main()
 
     int n, m;
     while (cin >> n && cin >> m) {
+        if (m == 0) {
+            printf("%lld does not divide %lld!\n", m, n);
+            continue;
+        }
+
         int tmp_m = m;
 
-        // if (m < n) {
-        //     printf("%d does not divide %d!\n", m, n);
-        //     continue;
-        // }
-
         bool rs = true;
-        for (int d=0; primes[d]*primes[d]<=tmp_m && d<primes.size(); d++) {
+        for (int d=0; primes[d]*primes[d]<=m && d<primes.size(); d++) {
             int i = primes[d];
+
+            if (m % i) continue;
+
             int cnt = 0;
             while (tmp_m % i == 0) {
                 cnt++;
                 tmp_m /= i;
             }
-
-            if (cnt == 0) continue;
 
             int cnt2 = 0, pk = i;
             while (pk < n) {
@@ -60,11 +66,11 @@ int32_t main()
         }
 
         if (tmp_m != 1) {
-            if (tmp_m > n) rs = false;
+            if (n < tmp_m) rs = false;
         }
 
-        if (rs) printf("%d divides %d!\n", m, n);
-        else printf("%d does not divide %d!\n", m, n);
+        if (rs) printf("%lld divides %lld!\n", m, n);
+        else printf("%lld does not divide %lld!\n", m, n);
     }
 
     return 0;

@@ -17,10 +17,16 @@ int32_t main() {
     int n=1, k=1;
     while (cin >> n >> k) {
         vector<pair<int, int>> seq;
+        bool added[1010][1010];
+        memset(added, 0, sizeof added);
 
         for (int i=1; i<=n; i++) {
-            for (int j=i+1; j<=n; j++) {
-                seq.push_back({i, j});
+            for (int j=i; j<=n; j++) {
+                int g = __gcd(i, j);
+                if (added[i/g][j/g] == false) {
+                    seq.push_back({i/g, j/g});
+                    added[i/g][j/g] = true;
+                }
             }
         }
 
@@ -30,7 +36,9 @@ int32_t main() {
             return (l1 < l2);
         });
 
-        cout << seq[k-1].first << "/" << seq[k-1].second << endl;
+        if (k-1 < seq.size())
+            cout << seq[k-1].first << "/" << seq[k-1].second << endl;
+        else cout << "Invalid\n";
     }
 
     return 0;

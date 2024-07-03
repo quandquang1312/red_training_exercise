@@ -30,12 +30,16 @@ int32_t main() {
 
     set<int> st;
 
-    int MAXN = 100;
+    int MAXN = 1000;
 
     for (int i=0; i<=100 && st.size() < MAXN; i++) {
+        if (binpow(2,i) >= 2000000000LL) break;
         for (int j=0; j<=100 && st.size() < MAXN; j++) {
+            if (binpow(3,j) >= 2000000000LL) break;
             for (int d=0; d<=100 && st.size() < MAXN; d++) {
+                if (binpow(5,d) >= 2000000000LL) break;
                 for (int k=0; k<=100 && st.size() < MAXN; k++) {
+                     if (binpow(7,k) >= 2000000000LL) break;
                     int ans = binpow(2, i) * binpow(3, j) * binpow(5, d) * binpow(7, k);
                     // cout << ans << endl;
                     if (ans <= 2000000000LL && ans >= 0LL) st.insert(ans);
@@ -62,8 +66,10 @@ int32_t main() {
         if (n % 10 == 1) suffix = "st";
         else if (n % 10 == 2) suffix = "nd";
         else if (n % 10 == 3) suffix = "rd";
-        printf("The %d %s humble number is %d.\n", n, suffix.c_str(), precal[n-1]);
+        printf("The %d%s humble number is %d.\n", n, suffix.c_str(), precal[n-1]);
     }
+
+    cout << "print\n";
 
     return 0;
 }
