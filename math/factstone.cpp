@@ -15,14 +15,15 @@ int32_t main() {
     #endif
 
     int year = 1960;
-    while (year <= 2160) {
+    while (cin >> year) {
         if (year == 0) break;
 
         int d = ((year - 1960)/10 + 2);
 
-        int maxx = pow(2,d);
+        double maxx = pow(2,d);
 
-        int n = 1, sumlogn = 0;
+        int n = 1;
+        double sumlogn = 0;
         while (sumlogn < maxx) {
             sumlogn += log2(n);
             n++;

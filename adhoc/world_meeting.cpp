@@ -20,26 +20,30 @@ int32_t main() {
     for (auto &e : arr)
         cin >> e.first >> e.second;
 
-    sort(arr.begin(), arr.end(), [](pair<int, int> p1, pair<int, int> p2) {
-        return p1.second < p2.second;
-    });
+    int premap[24];
+
+    for (int i=0; i<24; i++)
+        premap[i] = (i+9) % 24;
 
     int ans = -1;
-    for (int i=0; i<n; i++) {
-        
-        int sm = arr[i].first;
-        for (int j=i+1; j < n; j++) {
-            if (arr[j].second - arr[i].second < 9)
-                sm += arr[j].first;
-            else break;
+    for (int i=0; i<24; i++) {
+        int sm = 0;
+        for (int j=0; j<n; j++) {
+            if (i < premap[i]) {
+                if (i < premap[i] && (arr[j].second >= i && arr[j].second < premap[i])) {
+                    sm += arr[j].first;
+                    // cout << i << "-" << j << " cp1\n";
+                }
+            } else {
+                if (arr[j].second >= i) {
+                    sm += arr[j].first;
+                } else if (arr[j].second < premap[i]) {
+                    sm += arr[j].first;
+                }
+            }
         }
 
-        int rm = 24 - arr[i].second;
-        if (rm > 9) continue;
-
-        for (int j=0; arr[j].second < rm; j++) {
-            sm += arr[j].first;
-        }
+        // cout << i << ": " << sm << endl;
 
         ans = max(ans, sm);
     }
