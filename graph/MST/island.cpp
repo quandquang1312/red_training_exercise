@@ -54,7 +54,7 @@ int32_t main() {
         vector<pair<double, double>> coor(n);
 
         for (int i=0; i<n; i++) cin >> coor[i].first >> coor[i].second;
-        vector<tuple<int, int, double>> adj;
+        vector<tuple<double, int, int>> adj;
 
         for (int i=0; i<n; i++) {
             for (int j=0; j<n; j++) {
@@ -63,9 +63,7 @@ int32_t main() {
                 double f = (coor[i].first - coor[j].first), s = (coor[i].second - coor[j].second);
                 double distance = sqrt(f*f + s*s);
 
-                adj.push_back({i, j, distance});
-
-                // cout << i << " " << j << ": " << distance << endl;
+                adj.push_back({distance, i, j});
             }
         }
 
@@ -75,7 +73,7 @@ int32_t main() {
 
         double mst_cost = 0.0;
         int cnt = 0;
-        for (auto &[u, v, w] : adj) {
+        for (auto &[w, u, v] : adj) {
             if (UF.isSameSet(u, v)) continue;
             mst_cost += w;
 
@@ -84,7 +82,7 @@ int32_t main() {
             if (cnt == n - 1) break;
         }
 
-        printf("%.3f\n", mst_cost);
+        printf("%.14f\n", mst_cost);
 
 
     }

@@ -45,14 +45,14 @@ void kruskal()
     for (int i=0; i<m; i++) {
         int u, v, w;
         cin >> u >> v >> w;
-        adj[i] = {u, v, w};
+        adj[i] = {w, u, v};
     }
 
     sort(adj.begin(), adj.end());
 
     int mst_cost = 0, num_taken = 0;
     UnionFind UF(n);
-    for (auto &[u, v, w] : adj)
+    for (auto &[w, u, v] : adj)
     {
         if (UF.isSameSet(u, v)) continue;
 
