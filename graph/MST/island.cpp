@@ -5,7 +5,8 @@ using namespace std;
 
 #define int long long
 
-class UnionFind {
+class UnionFind
+{
 private:
     vector<int> p, rank, setSize;
     int numSets;
@@ -39,29 +40,38 @@ public:
     }
 };
 
-int32_t main() {
+int32_t main()
+{
     ios_base::sync_with_stdio(false);
-    cin.tie(nullptr); cout.tie(nullptr);
+    cin.tie(nullptr);
+    cout.tie(nullptr);
 
-    #ifdef LOCAL
-        freopen("in.txt", "r", stdin);
-        freopen("ou.txt", "w", stdout);
-    #endif
+#ifdef LOCAL
+    freopen("in.txt", "r", stdin);
+    freopen("ou.txt", "w", stdout);
+#endif
 
-    int tc; cin >> tc;
-    while (tc--) {
-        int n; cin >> n;
+    int tc;
+    cin >> tc;
+    while (tc--)
+    {
+        int n;
+        cin >> n;
         vector<pair<double, double>> coor(n);
 
-        for (int i=0; i<n; i++) cin >> coor[i].first >> coor[i].second;
+        for (int i = 0; i < n; i++)
+            cin >> coor[i].first >> coor[i].second;
         vector<tuple<double, int, int>> adj;
 
-        for (int i=0; i<n; i++) {
-            for (int j=0; j<n; j++) {
-                if (i == j) continue;
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                if (i == j)
+                    continue;
 
                 double f = (coor[i].first - coor[j].first), s = (coor[i].second - coor[j].second);
-                double distance = sqrt(f*f + s*s);
+                double distance = sqrt(f * f + s * s);
 
                 adj.push_back({distance, i, j});
             }
@@ -73,18 +83,21 @@ int32_t main() {
 
         double mst_cost = 0.0;
         int cnt = 0;
-        for (auto &[w, u, v] : adj) {
-            if (UF.isSameSet(u, v)) continue;
+        for (auto &[w, u, v] : adj)
+        {
+            if (UF.isSameSet(u, v))
+                continue;
             mst_cost += w;
 
             UF.unionSet(u, v);
             cnt++;
-            if (cnt == n - 1) break;
+            if (cnt == n - 1)
+                break;
         }
 
-        printf("%.14f\n", mst_cost);
-
-
+        cout << fixed;
+        cout.precision(4);
+        cout << mst_cost << endl;
     }
 
     return 0;
