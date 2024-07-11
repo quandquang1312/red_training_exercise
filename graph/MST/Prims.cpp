@@ -17,7 +17,7 @@ void process(int u)
 
 void prims()
 {
-    int n, m;
+    long n, m;
     cin >> n >> m;
     AL.clear();
     AL.resize(n);

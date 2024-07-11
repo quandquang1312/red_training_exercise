@@ -1,0 +1,9 @@
+ans: 2
+ans: 1
+ans: 1
+ans: 2
+ans: 0
+ans: 3
+ans: 2
+ans: 3
+ans: 3
