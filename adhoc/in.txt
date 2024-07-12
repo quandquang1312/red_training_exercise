@@ -1,1 +1,5 @@
-atcoder toe
+4
+RG
+RRGG
+RR
+RRGGRG
