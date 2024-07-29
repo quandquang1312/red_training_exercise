@@ -19,11 +19,11 @@ int32_t main() {
 
     vector<vector<int>> adj(n+1), CCs;
     vector<int> indegree(n+1, 0);
-    for (int i=0; i<n; i++) {
+    for (int i=0; i<m; i++) {
         int u, v; cin >> u >> v;
         indegree[u]++;
         adj[u].push_back(v);
-        adj[v].push_back(u);
+        if (u != v) adj[v].push_back(u);
     }
 
     vector<bool> visited(n+1, false);
