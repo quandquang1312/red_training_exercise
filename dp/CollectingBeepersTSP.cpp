@@ -62,7 +62,7 @@ int32_t main() {
             ans = min(ans, tsp(i, mask ^ (1 << (i - 1))) + dist[0][i]);
         }
 
-        cout << "The shortest path has length " << ans << endl;
+        cout << ans << endl;
     }
 
     return 0;
