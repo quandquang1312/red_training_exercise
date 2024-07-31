@@ -21,7 +21,8 @@ int32_t main() {
         cin >> n >> m >> p >> k;
 
         vector<vector<int>> adj(n+1), adj_trans(n+1);
-        vector<int> c(n+1), indegree(n+1, 0), indegree_original;
+        vector<int> c(n+1), indegree(n+1, 0), topo, ans(n+1, 0);
+        vector<bool> zeroDegree(n+1, false);
         for (int i=1; i<=n; i++) cin >> c[i];
         for (int i=0; i<m; i++) {
             int u, v;
@@ -31,16 +32,10 @@ int32_t main() {
             indegree[v]++;
         }
 
-        indegree_original = indegree;
-
-        vector<int> topo;
         queue<int> q;
-        int lst = 1;
-        for (int i=1; i<=n; i++) if (indegree[i] == 0) q.push(i);
-
+        for (int i=1; i<=n; i++) if (indegree[i] == 0) q.push(i), zeroDegree[i] = true;
         while (!q.empty()) {
             int u = q.front();
-            cout << u << " ";
             q.pop();
             topo.push_back(u);
 
@@ -50,53 +45,31 @@ int32_t main() {
             }
         }
 
-        vector<int> ans(n+1, 0);
-        int ttl = 0, cnt = topo.size();
+        int ttl = 0;
         for (auto &u : topo) {
-            // cout << u << " ";
-            if (indegree_original[u] == 0) {
-                // cout << u << ": " << c[u] << '\n';
+            if (zeroDegree[u]) {
                 ans[u] = c[u]; 
             } else {
-                // cout << u << ": I ";
-
                 int max_day = -1;
                 for (auto &v : adj_trans[u]) {
-                    // cout << v << " ";
                     max_day = max(max_day, ans[v]);
-                } 
-                // cout << endl;
-
-                // cout << u << ": m " << max_day << endl;
-                if ((max_day % p) < c[u]) {
-                    ans[u] = (max_day % MOD) + (c[u] - (max_day % p)) % MOD;
-                    ans[u] %= MOD;
-                } else {
-                    ans[u] = ((max_day/p + 1) % MOD * p % MOD) % MOD + c[u];
-                    ans[u] %= MOD;
                 }
 
-                // if (indegree_original[u] == 1) {
-                //     int par = adj_trans[u][0];
-                //     if (c[par] < c[u]) ans[u] = c[u];
-                //     else ans[u] = c[u] + p;
-                //     // cout << " - D " << ans[u] << endl;
-                // }
-
-                // cout << u << ": " << ans[u] << endl;
+                int rm = max_day % p;
+                if (rm == 0) rm = p;
+                if (rm < c[u]) {
+                    ans[u] = max_day + (c[u] - rm);
+                } else if (rm == c[u]) {
+                    ans[u] = max_day;
+                } else {
+                    ans[u] = max_day + (p - rm) + c[u];
+                }
             }
 
-            // printf("%d - %d, %d, %d -> %d\n", u, ans[u], lst, cnt, (min(ans[u], k + 1) - lst) * cnt);
-
-            int a = (min(ans[u], k + 1) % MOD) - (lst % MOD);
-            // int b = cnt;
-            ttl += (a % MOD) * (cnt % MOD);
+            ttl += min(k, ans[u] - 1);
             ttl %= MOD;
-            // ttl += (k + 1 - ans[u]);
-            lst = ans[u] % MOD;
-            cnt--;
         }
-        cout << endl;
+
         for (int i=1; i<=n; i++) {
             if (indegree[i] != 0) {
                 ttl += (k % MOD);
