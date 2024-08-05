@@ -3,11 +3,11 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#define int long long
+#define int int64_t
 const int MAXN = 2 * 1e5 + 10;
 
 int timer, l;
-int tin[MAXN], tout[MAXN], height[MAXN], parent[MAXN][20];
+int tin[MAXN], tout[MAXN], height[MAXN], parent[MAXN][22];
 vector<vector<int>> adj; // [MAXN];
 
 void dfs(int u, int p) {
@@ -45,8 +45,7 @@ int dist(int u, int v) {
 }
 
 void preprocess(int n) {
-    height[1] = 0, timer = 0, l = ceil(log2(n + 1));
-
+    l = 21;
     adj.resize(n+1);
 }
 
@@ -72,8 +71,8 @@ int32_t main() {
     dfs(1, 1);
 
     // Calculate sparse table
-    for (int u=0; u<=n; u++)
-        for (int i=1; i<=l; i++)
+    for (int i=1; i<=l; i++)
+        for (int u=1; u<=n; u++)
             parent[u][i] = parent[parent[u][i-1]][i-1];
 
     int ans = 0;

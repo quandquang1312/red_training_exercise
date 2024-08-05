@@ -72,8 +72,8 @@ int32_t main() {
 
         dfs(1, 1);
 
-        for (int u=1; u<=n; u++)
-            for (int i=1; i<=l; i++)
+        for (int i=1; i<=l; i++)
+            for (int u=1; u<=n; u++)
                 parent[u][i] = parent[parent[u][i-1]][i-1];
 
         int q; cin >> q;
