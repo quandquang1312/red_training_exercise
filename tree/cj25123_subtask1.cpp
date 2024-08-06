@@ -4,31 +4,17 @@
 using namespace std;
 
 #define int long long
-vector<pair<int, int>> dp1, dp2;
-pair<int, int> dfs_1(int u, int par, vector<vector<int>>& adj, string tr) {
-    if (dp1[u].first != -1) return dp1[u];
+
+pair<int, int> dfs(int u, int par, vector<vector<int>>& adj, string tr) {
     int ans = 0, cnt = 1;
     for (auto &v : adj[u]) {
         if (v == par || tr[v-1] == tr[u-1]) continue;
-        pair<int, int> tmp_ans = dfs_1(v, u, adj, tr);
+        pair<int, int> tmp_ans = dfs(v, u, adj, tr);
         if (tmp_ans.first == ans) cnt += tmp_ans.second;
         else if (tmp_ans.first > ans) ans = tmp_ans.first, cnt = tmp_ans.second;
     }
 
-    return dp1[u] = {1 + ans, cnt};
-}
-
-pair<int, int> dfs_2(int u, int par, vector<vector<int>>& adj, string tr) {
-    if (dp2[u].first != -1) return dp2[u];
-    int ans = 0, cnt = 1;
-    for (auto &v : adj[u]) {
-        if (v == par || tr[v-1] == tr[u-1] || v < u) continue;
-        pair<int, int> tmp_ans = dfs_2(v, u, adj, tr);
-        if (tmp_ans.first == ans) cnt += tmp_ans.second;
-        else if (tmp_ans.first > ans) ans = tmp_ans.first, cnt = tmp_ans.second;
-    }
-
-    return dp2[u] = {1 + ans, cnt};
+    return {1 + ans, cnt};
 }
 
 void sub_1(int n, string tr, vector<int> par) {
@@ -41,13 +27,7 @@ void sub_1(int n, string tr, vector<int> par) {
 
     int cnt = 0, ans = 0;
     for (int i=1; i<=n; i++) {
-        pair<int, int> tmp_ans = dfs_1(i, 0, adj, tr);
-        if (tmp_ans.first == ans) cnt += tmp_ans.second;
-        else if (tmp_ans.first > ans) ans = tmp_ans.first, cnt = tmp_ans.second;
-    }
-
-    for (int i=1; i<=n; i++) {
-        pair<int, int> tmp_ans = dfs_2(i, 0, adj, tr);
+        pair<int, int> tmp_ans = dfs(i, 0, adj, tr);
         if (tmp_ans.first == ans) cnt += tmp_ans.second;
         else if (tmp_ans.first > ans) ans = tmp_ans.first, cnt = tmp_ans.second;
     }
@@ -72,8 +52,6 @@ int32_t main() {
     while (tc--) {
         int n; cin >> n;
         string tr; cin >> tr;
-        dp1.assign(n+1, {-1, -1});
-        dp2.assign(n+1, {-1, -1});
         vector<int> par(n + 1);
         for (int i=1; i<=n; i++) cin >> par[i];
         if (n <= 1000) sub_1(n, tr, par);
