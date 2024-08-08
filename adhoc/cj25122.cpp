@@ -4,7 +4,6 @@
 using namespace std;
 
 #define int long long
-
 const int mod = 1e9 + 7;
 
 int binpow(int a, int b) {
@@ -34,36 +33,44 @@ int32_t main() {
     while (tc--) {
         int n; cin >> n;
 
-        int arr[n];
+        vector<int> arr(n);
         for (int i=0; i<n; i++) cin >> arr[i];
     
-        vector<pair<int, int>> ans;
-        map<int, int> mp;
-        int lst_idx = 0;
+        int j = 0;
+        unordered_map<int, int> lst_idx;
+        vector<int> lt(n), rt(n);
 
-        for (int i=0; i<n; i++) {
-            if (i == n-1 && mp.find(arr[i]) == mp.end()) {
-                ans.push_back({lst_idx, i});
-                continue;
+        for (int i = 0; i < n; i++) {
+            if (lst_idx.find(arr[i]) != lst_idx.end() && lst_idx[arr[i]] >= j) {
+                j = lst_idx[arr[i]] + 1;
             }
-            if (mp.find(arr[i]) != mp.end()) {
-                if (mp[arr[i]] > lst_idx) ans.push_back({mp[arr[i]], i - 1});
-                else ans.push_back({lst_idx, i - 1});
-                mp.erase(arr[i]);
-                lst_idx = mp[arr[i]];
-            }
-            mp[arr[i]] = i;
+            lst_idx[arr[i]] = i;
+            lt[i] = i - j + 1;
         }
 
-        int sm = 0;
-        for (auto &e : ans) {
-            int pw = e.second - e.first + 1;
-            sm += binpow(e.first, pw) + binpow(e.second, pw);
-            sm %= mod;
-            cout << e.first << " " << e.second << "\n";
+        reverse(arr.begin(), arr.end());
+        lst_idx.clear();
+        j = 0;
+
+        for (int i = 0; i < n; i++) {
+            if (lst_idx.find(arr[i]) != lst_idx.end() && lst_idx[arr[i]] >= j) {
+                j = lst_idx[arr[i]] + 1;
+            }
+            lst_idx[arr[i]] = i;
+            rt[n-i-1] = i - j + 1;
         }
 
-        cout << sm << '\n';
+        int ans = rt[0] + lt[0] - 2;
+        for (int i=1; i<n; i++) {
+            int r = i + 1, tmp_ans = 0;
+            if (lt[i] > 1) tmp_ans += ((1 - binpow(r, lt[i] + 1)) * binpow(1 - r, mod - 2) - 1 - r) % mod, tmp_ans %= mod;
+            if (rt[i] > 1) tmp_ans += ((1 - binpow(r, rt[i] + 1)) * binpow(1 - r, mod - 2) - 1 - r) % mod, tmp_ans %= mod;
+
+            ans += tmp_ans;
+            ans %= mod;
+        }
+
+        cout << ans << '\n';
     }
 
     return 0;
