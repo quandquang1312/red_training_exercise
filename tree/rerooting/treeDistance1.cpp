@@ -22,17 +22,35 @@ void dfs(int u, int par, vector<vector<int>>& adj) {
 
 void rerooting(int u, int par, vector<vector<int>>& adj) {
     g[u] = f[u];
+    int n = adj[u].size();
+
+    vector<int> pref_max(n + 5, 0), suff_max(n + 5, 0);
+    for (int i=0; i<n; i++) {
+        pref_max[i + 1] = max(f[adj[u][i]] + 1, pref_max[i]);
+    }
+
+    for (int i=n-1; i>=0; i--) {
+        suff_max[i] = max(f[adj[u][i]] + 1, suff_max[i + 1]);
+    }
+
     for (int i=0; i<adj[u].size(); i++) {
         int v = adj[u][i];
         if (v == par) continue;
 
         // detach v from u and attach u to v
         int original_fu = f[u], original_fv = f[v];
-        f[u] = 0;
-        for (auto w : adj[u]) {
-            if (v == w) continue;
-            f[u] = max(f[u], f[w] + 1);
-        }
+        
+        // brute force
+        // f[u] = 0;
+        // for (auto w : adj[u]) {
+        //     if (v == w) continue;
+        //     f[u] = max(f[u], f[w] + 1);
+        // }
+
+        if (i == 0) { f[u] = suff_max[i + 1]; }
+        if (i == n -1) { f[u] = pref_max[i]; }
+        else f[u] = max(pref_max[i], suff_max[i + 1]);
+
         f[v] = max(f[v], f[u] + 1);
 
         rerooting(v, u, adj);
@@ -72,7 +90,7 @@ int32_t main() {
     rerooting(1, 0, adj);
     g[1] = f[1];
     for (int i=1; i<=n; i++) {
-        cout << i << ": " << g[i] << '\n';
+        cout << g[i] << '\n';
     }
 
     return 0;
