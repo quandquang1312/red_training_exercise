@@ -125,6 +125,13 @@ int extended_euclid(int a, int b, int &x, int &y)
     return a1;
 }
 
+// Modular Inverse using Extended Eulid when MOD is not prime
+int inv(int n) {
+    int x, y;
+    extended_euclid(n, MOD, x, y);
+    return (x % MOD + MOD) % MOD;
+}
+
 int32_t main() {
 
     #ifdef LOCAL

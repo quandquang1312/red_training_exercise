@@ -57,29 +57,14 @@ int32_t main() {
         cin >> n >> m;
 
         // n.o ways to place k = 0 to n-1 X between 0 -> n-th O (n holes)
-        // the remain X is m - k
-        // n.o ways to place m - k X between n-th -> m-th X (m - n holes)
+        // n.o ways to place the remain Os between n-th -> m-th X (m - k holes)
         int ans = 0;
         for (int k=0; k<=n-1; k++) {
             int fi = CnK(n + k - 1, k);
-            int remain = m - k - 1;
-            int a1 = remain - 1, ap = remain + (m - n) - 1;
-            int p = ap - a1 + 1;
-
-            cout << k << " rm: " << remain << '\n';
-            cout << k << ": " << a1 << "-" << ap << "-" << p << '\n';
-
-            int upp = binpow(f[a1], p) * (f[ap] / f[a1]);
-            int low = binpow(f[remain], p) * f[p] * f[ap - p + 1 - remain];
-
-            cout << k << ": " << upp << " <-> " << low << '\n';
-
-            for (int holes = 0; holes <= m - n; holes++) {
-                // int holes = m - n;
-                int se = CnK(remain + holes - 1, remain);
-                ans = (ans + ((fi % MOD) * (se % MOD)) % MOD) % MOD;
-                // cout << k << ": " << fi << " <-> " << se << '\n';
-            }
+            int rm_A = m - n - 1;
+            int hole = m - k; // remain B + 1
+            int se = CnK(hole + rm_A, rm_A);
+            ans = (ans + (fi * se) % MOD) % MOD;
         }
 
         cout << ans << '\n';
