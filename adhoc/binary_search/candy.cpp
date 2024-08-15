@@ -14,12 +14,16 @@ bool check(int val, int n, vector<int>& arr) {
             continue;
         } else {
             int t = q.top();
-            q.pop();
-            q.push(t + e);
+            if (t + e > val) {
+                q.push(e);
+            } else {
+                q.pop();
+                q.push(t + e);
+            }
         }
     }
 
-    if (q.size() > n || q.top() > val) return false;
+    if (q.size() > n) return false;
     return true;
 }
 
@@ -40,9 +44,9 @@ int32_t main() {
 
     int i = 1;
     for (; i<=1000; i++) {
-        if (!check(i, n, arr)) break;
+        if (check(i, n, arr)) break;
     }
 
-    cout << i - 1 << '\n';
+    cout << i << '\n';
     return 0;
 }
