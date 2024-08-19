@@ -1,4 +1,4 @@
-// https://cses.fi/problemset/result/7428302/
+// https://cses.fi/problemset/task/1132/
 
 #include <bits/stdc++.h>
 using namespace std;

@@ -48,12 +48,12 @@ int32_t main() {
         adj[u].push_back(v);
     }
 
-    for (int i=1; i<=n; i++) {
-        cout << i << ": ";
-        for (auto v : adj[i])
-            cout << v << " ";
-        cout << endl;
-    }
+    // for (int i=1; i<=n; i++) {
+    //     cout << i << ": ";
+    //     for (auto v : adj[i])
+    //         cout << v << " ";
+    //     cout << endl;
+    // }
 
     for (int i=1; i<=n; i++) {
         if (color[i] == 0 && checkCycle(i)) break;
