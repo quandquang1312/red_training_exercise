@@ -1,1 +1,5 @@
-impossible
+Yes 1
+Yes 2
+No
+No
+Yes 6
