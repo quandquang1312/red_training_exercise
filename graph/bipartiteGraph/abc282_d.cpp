@@ -6,17 +6,18 @@ using namespace std;
 #define int long long
 
 vector<vector<int>> adj;
-vector<int> color, visited;
-vector<pair<int, int>> dp;
+vector<int> color, visited, indegree;
 
-int dfs(int u, int par) {
-    if (visited[u] == true) return 0;
+pair<int, int> dfs(int u, int par) {
+    if (visited[u] == true) return {0, 0};
     visited[u] = true;
 
-    int ans = 1;
+    pair<int, int> ans = {1, indegree[u]};
     for (auto &v : adj[u]) {
         if (v == par || visited[v]) continue;
-        ans += dfs(v, u);
+        pair<int, int> tmp_ans = dfs(v, u);
+        ans.first  += tmp_ans.first;
+        ans.second += tmp_ans.second;
     }
 
     return ans;
@@ -34,35 +35,35 @@ int32_t main() {
     int n, m;
     cin >> n >> m;
 
-    adj.resize(n + 1);
-    dp.resize(n + 1, {-1, -1});
-    vector<int> sz(n + 1, -1);
-    color.resize(n + 1, 2);
-    visited.resize(n + 1);
+    adj.resize(n+1);
+    color.resize(n+1, 2);
+    visited.resize(n+1);
+    indegree.resize(n+1, 0);
 
     for (int i=0, u, v; i<m; i++) {
         cin >> u >> v;
         adj[u].push_back(v);
         adj[v].push_back(u);
+        indegree[v]++;
     }
 
     vector<int> CCs;
     for (int i=1; i<=n; i++) {
         if (!visited[i]) {
             CCs.push_back(i);
-            sz[i] = dfs(i, 0);
+            pair<int, int> tmp = dfs(i, 0);
         }
     }
 
     vector<pair<int, int>> ans;
-    for (auto rt : CCs) {
-        // cout << rt << ": " << sz[rt] << '\n';
-        return 0;
+    bool isBipartite = true;
+
+    for (int idx = 0; idx<CCs.size(); idx++) {
+        int rt = CCs[idx];
         queue<int> q;
         q.push(rt);
         color[rt] = 0;
 
-        bool isBipartite = true;
         pair<int, int> p;
         while (!q.empty() && isBipartite)
         {
@@ -82,22 +83,22 @@ int32_t main() {
             }
         }
 
-        if (!isBipartite) { }
-        else {
-            ans.push_back(p);
+        if (isBipartite) ans.push_back(p);
+        else break;
+    }
+
+    int res = (n * (n - 1)) / 2;
+    if (isBipartite) {
+        for (int i=0; i<ans.size(); i++) {
+            int n1node = (ans[i].first * (ans[i].first - 1)) / 2;
+            int n2node = (ans[i].second * (ans[i].second - 1)) / 2;
+
+            res -= n1node;
+            res -= n2node;
         }
     }
 
-    int res = 0;
-    for (int i=0; i<ans.size(); i++) {
-        res += (ans[i].first * ans[i].second) - noe;
-        for (int j=i+1; j<ans.size(); j++) {
-            res += ans[i].first * ans[j].second;
-            res += ans[i].second * ans[j].first;
-        }
-    }
-
-    cout << res << endl;
+    cout << (isBipartite ? res - m : 0) << endl;
 
     return 0;
 }
