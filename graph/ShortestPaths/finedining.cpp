@@ -45,29 +45,22 @@ int32_t main() {
     int n, m, k;
     cin >> n >> m >> k;
 
-    vector<vector<pair<int, int>>> initial_graph(n + 1), second_graph(n + 1);
+    vector<vector<pair<int, int>>> initial_graph(n + 2);
     for (int i=0, u, v, w; i<m; i++) {
         cin >> u >> v >> w;
         initial_graph[u].push_back({v, w});
         initial_graph[v].push_back({u, w});
-
-        if (u != n && v != n) {
-            second_graph[u].push_back({v, w});
-            second_graph[v].push_back({u, w});
-        }
     }
     vector<int> optimal = dijkstra(n, initial_graph);
 
     for (int i=0, u, y; i<k; i++) {
         cin >> u >> y;
-        second_graph[n].push_back({u, optimal[u] - y});
-        second_graph[u].push_back({n, optimal[u] - y});
+        initial_graph[n + 1].push_back({u, optimal[u] - y});
     }
 
-    vector<int> sec     = dijkstra(n, second_graph);
+    vector<int> sec     = dijkstra(n + 1, initial_graph);
 
     for (int i=1; i<n; i++) {
-        cout << i << ": " << optimal[i] << "-" << sec[i] << '\n';
         if (sec[i] <= optimal[i]) cout << "1\n";
         else cout << "0\n";
     }
