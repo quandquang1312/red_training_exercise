@@ -25,17 +25,43 @@ int32_t main()
         arr[i + n] = arr[i];
     }
 
-    unordered_map<int, int> mp;
+    vector<int> presum(n * 2 + 1, 0);
+    for (int i=1; i <= (n * 2); i++) {
+        presum[i] = presum[i-1] + arr[i];
+    }
 
-    int curr_remainder = 0, ans = 0;
-    for (int i = 1; i <= n * 2; i++)
-    {
-        curr_remainder = (curr_remainder + arr[i]) % MOD;
-        if (mp.find(curr_remainder) == mp.end()) mp[curr_remainder] = i;
-        else {
-            if (i <= n) ans++; 
-            else if (mp[curr_remainder] + n > i) ans++;
+    int ans = 0;
+    for (int i=1; i<=n; i++) {
+        for (int j=i; j<i+n; j++) {
+            if ((presum[j] - presum[i - 1]) % MOD == 0) {
+                ans++;
+                // cout << i << " -> " << j << "\n";
+            }
         }
     }
-    cout << ans << endl;
+
+    cout << ans << '\n';
+
+    // unordered_map<int, int> mp;
+
+    // int curr_remainder = 0, ans = 0;
+    // mp[0] = 1;
+
+    // vector<int> remainder(n * 2 + 1, 0);
+    // for (int i = 1; i <= (n * 2); i++)
+    // {
+    //     curr_remainder = (curr_remainder + (arr[i] % MOD)) % MOD;
+    //     remainder[i] = curr_remainder;
+    //     if (mp.find(curr_remainder) != mp.end()) {
+    //         if (i - mp[curr_remainder] <= n) {
+    //             ans += mp[curr_remainder];
+    //             cout << mp[curr_remainder] + 1 << " => " << i  << '\n';
+    //         }
+    //     }
+    //     if (i <= n) mp[curr_remainder]++;
+    //     else mp[remainder[i - n]]--;
+    // }
+    // cout << ans << endl;
+
+    return 0;
 }
