@@ -3,7 +3,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-vector<int> startIdx, endIdx, colors;
+vector<int> startIdx, endIdx, colors, acolors, ans;
 int n, timer, max_st, max_en;
 vector<vector<int>> adj;
 
@@ -45,6 +45,7 @@ private:
 };
 
 void euler_tour(int at, int prev) {
+    acolors[timer] = colors[at];
     startIdx[at] = timer++;
     max_st = max(max_st, timer);
     for (int n : adj[at]) {
@@ -59,6 +60,8 @@ void preprocess(int n) {
     adj.resize(n + 1);
     startIdx.resize(n + 1);
     endIdx.resize(n + 1);
+    ans.resize(n + 1);
+    acolors.resize(n * 2);
 }
 
 int32_t main() {
@@ -80,8 +83,8 @@ int32_t main() {
         adj[u].push_back(v);
         adj[v].push_back(u);
     }
-
     euler_tour(1, 0);
+
     vector<vector<pair<int, int>>> queries(max_st);
     for (int i=1; i<=n; i++) {
         queries[startIdx[i]].push_back({i, endIdx[i]});
@@ -90,7 +93,13 @@ int32_t main() {
     FenwickTree ft(max_en + 10);
     unordered_map<int, int> lst_idx;
     for (int i=max_en; i>=0; i--) {
-        if (lst_idx[])
+        if (lst_idx.count(acolors[i]) > 0) ft.add(lst_idx[acolors[i]], -1);
+
+        lst_idx[acolors[i]] = i;
+        ft.add(i, 1);
+        for (auto &[en, idx] : queries[i]) {
+            ans[idx] = ft.query(i, en - 1);
+        }
     }
 
 
