@@ -1,108 +1,90 @@
 // https://leetcode.com/problems/maximum-product-of-splitted-binary-tree/description/
 
-#include <bits/stdc++.h>
-using namespace std;
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+ 
+class Solution {
+private:
+    vector<vector<long long>> adj;
+    vector<long long> dp, arr;
+    long long timer = 1;
+    long long ans = -1, sm = 0;
+    const long long MOD = 1e9 + 7;
 
-#define int long long
-int ans = -1;
-const int MOD = 1e9 + 7;
-/*
-6
-1 2
-1 3
-2 4
-2 5
-3 6
-*/
+    long long dfs(int u, int par) {
+        if (dp[u] != -1) return dp[u];
 
-/*
-6
-1 2
-2 3
-2 4
-4 5
-4 6
-*/
+        long long u_ans = arr[u];
+        for (auto &v : adj[u]) {
+            if (v == par) continue;
+            int v_ans = dfs(v, u);
+            u_ans = (u_ans + v_ans);
+        }
 
-/*
-11
-1 2
-1 3
-2 9
-2 10
-3 7
-3 8
-9 5
-9 4
-*/
-
-vector<vector<int>> adj;
-vector<int> dp;
-
-int dfs(int u, int par) {
-    if (dp[u] != -1) return dp[u];
-
-    int ans = u;
-    for (auto &v : adj[u]) {
-        if (v == par) continue;
-
-        ans = (ans + dfs(v, u)) % MOD;
+        return dp[u] = u_ans;
     }
 
-    return dp[u] = ans % MOD;
-}
+    void rerooting(int u, int par) {
+        for (auto &v : adj[u]) {
+            if (v == par) continue;
+            long long original_u = dp[u], original_v = dp[v];
 
-void rerooting(int u, int par) {
-    for (auto &v : adj[u]) {
-        if (v == par) continue;
-        int original_u = dp[u], original_v = dp[v];
+            // detach v from u
+            dp[u] = (dp[u] - dp[v]);
 
-        // detach v from u
-        dp[u] -= dp[v];
+            ans = max(ans, dp[u] * dp[v]);
 
-        ans = max(ans, ((dp[u] % MOD) * (dp[v] % MOD)) % MOD);
+            // attach u to v
+            dp[v] = (dp[v] + dp[u]);
 
-        // attach u to v
-        dp[v] += dp[u];
+            rerooting(v, u);
 
-        // cout << u << "-" << v << ": " << dp[u] << "*" << dp[v] << '\n';
-
-        rerooting(v, u);
-
-        // backtrack
-        dp[u] = original_u;
-        dp[v] = original_v;
-    }
-}
-
-int32_t main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(nullptr); cout.tie(nullptr);
-
-    #ifdef LOCAL
-        freopen("../in.txt", "r", stdin);
-        freopen("../ou.txt", "w", stdout);
-    #endif
-
-    int n; cin >> n;
-
-    adj.resize(n + 1);
-    dp.resize(n + 1, -1);
-
-    for (int i=0, u, v; i<(n - 1); i++) {
-        cin >> u >> v;
-        adj[u].push_back(v);
-        adj[v].push_back(u);
+            // backtrack
+            dp[u] = original_u;
+            dp[v] = original_v;
+        }
     }
 
-    dfs(0, 0);
-    rerooting(0, 0);
+    void traverse(TreeNode* current) {
+        long long u = current->val, cur_timer = timer;
+        sm = (sm + u);
+        arr[cur_timer] = u;
 
-    // for (int i=1; i<=n; i++) {
-    //     cout << i << ": " << dp[i] << '\n';
-    // }
+        if (current->left != nullptr) {
+            timer++;
+            adj[cur_timer].push_back(timer);
+            adj[timer].push_back(cur_timer);
+            traverse(current->left);
+        }
 
-    cout << ans << endl;
+        if (current->right != nullptr) {
+            timer++;
+            adj[cur_timer].push_back(timer);
+            adj[timer].push_back(cur_timer);
+            traverse(current->right);
+        }
+    }
 
-    return 0;
-}
+public:
+    int maxProduct(TreeNode* root) {
+        adj.resize(50005);
+        dp.resize(50005, -1);
+        arr.resize(50005);
+
+        traverse(root);
+
+        dfs(1, 0);
+        rerooting(1, 0);
+
+        return ans % MOD;
+    }
+};

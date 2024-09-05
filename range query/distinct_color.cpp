@@ -61,7 +61,7 @@ void preprocess(int n) {
     startIdx.resize(n + 1);
     endIdx.resize(n + 1);
     ans.resize(n + 1);
-    acolors.resize(n * 2);
+    acolors.resize(n * 10);
 }
 
 int32_t main() {
@@ -72,7 +72,6 @@ int32_t main() {
         freopen("in.txt", "r", stdin);
         freopen("ou.txt", "w", stdout);
     #endif
-
 
     cin >> n;
     preprocess(n);
@@ -85,7 +84,7 @@ int32_t main() {
     }
     euler_tour(1, 0);
 
-    vector<vector<pair<int, int>>> queries(max_st);
+    vector<vector<pair<int, int>>> queries(max_st + 10);
     for (int i=1; i<=n; i++) {
         queries[startIdx[i]].push_back({i, endIdx[i]});
     }
@@ -97,12 +96,15 @@ int32_t main() {
 
         lst_idx[acolors[i]] = i;
         ft.add(i, 1);
-        for (auto &[en, idx] : queries[i]) {
+        for (auto &[idx, en] : queries[i]) {
             ans[idx] = ft.query(i, en - 1);
         }
     }
 
-
+    for (int i=1; i<=n; i++) {
+        cout << ans[i] << " ";
+    }
+    cout << '\n';
 
     return 0;
 }
