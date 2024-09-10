@@ -6,14 +6,16 @@ using namespace std;
 vector<set<int>> adj;
 vector<int> dfs_num, dfs_low;
 vector<bool> visited;
-int timer, b;
+int timer = 0, b;
 
 void dfs(int u, int p = -1)
 {
+    if (b >= 1) return;
     dfs_num[u] = dfs_low[u] = timer++;
 
     bool parent_skipped = false;
     for (auto &v : adj[u]) {
+        if (b >= 1) break;
         if (v == p && !parent_skipped) {
             parent_skipped = true;
             continue;
@@ -28,6 +30,8 @@ void dfs(int u, int p = -1)
             dfs_low[u] = min(dfs_low[u], dfs_num[v]);
         }
     }
+
+    if (b >= 1) return;
 }
 
 void connected(int u, int p) {
@@ -53,7 +57,7 @@ int32_t main() {
     {
         if (n == 0 && m == 0) break;
 
-        adj.resize(n);
+        adj.assign(n, {});
         dfs_num.assign(n, -1);
         dfs_low.assign(n, 0);
         visited.assign(n, false);
@@ -66,17 +70,27 @@ int32_t main() {
             adj[dst].insert(src);
         }
 
-        connected(1, -1);
-        int cnt = 0;
-        for (int i=0; i<n; i++) cnt += (visited[i]);
+        connected(0, -1);
 
+        int cnt = 0;
+        bool fl = true;
         for (int i=0; i<n; i++) {
-            if (dfs_num[i] == -1) {
-                dfs(i);
+            if (!visited[i]) {
+                fl = false;
+                break;
             }
         }
 
-        cout << (b >= 1 || (cnt < n) ? "Yes\n" : "No\n");
+        if (!fl) {
+            cout << "Yes\n";
+            continue;
+        }
+
+        for (int i=0; i<n && b < 1; i++) {
+            if (dfs_num[i] == -1) dfs(i);
+        }
+
+        cout << (b >= 1 ? "Yes\n" : "No\n");
     }
 
     return 0;
