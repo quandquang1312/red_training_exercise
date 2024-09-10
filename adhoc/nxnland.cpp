@@ -39,7 +39,7 @@ int solve(int n, pair<int, int> ch, pair<int, int> ch2) {
             pair<int, int> en = {i + s, j + f};
             if (en.first > n || en.second > n) continue;
             int c_1 = count_1(i, j, en.first, en.second);
-            cout << i << "," << j << " - " << en.first << "," << en.second << ": " << c_1 << '\n';
+            // cout << i << "," << j << " - " << en.first << "," << en.second << ": " << c_1 << '\n';
             for (int i2=1; i2<=n; i2++) {
                 if (i2 >= i && i2 <= en.first) continue;
                 for (int j2=1; j2<=n; j2++) {
@@ -52,6 +52,9 @@ int solve(int n, pair<int, int> ch, pair<int, int> ch2) {
                     int in_2 = (2 * n) - in_1;
                     int ou_2 = total_2 - in_2;
 
+                    cout << i << "," << j << " - " << en.first << "," << en.second << ": " << c_1 << '\n';
+                    cout << i2 << "," << j2 << " - " << i2 + s2 << "," << j2 + f2 << ": " << c_11 << "\n===\n";
+
                     ans = max(ans, ou_2 + (c_1 + c_11));
 
                     // Case 1.2, rotate
@@ -60,6 +63,10 @@ int solve(int n, pair<int, int> ch, pair<int, int> ch2) {
                     in_1 = c_1 + c_11;
                     in_2 = (2 * n) - in_1;
                     ou_2 = total_2 - in_2;
+
+                    cout << i << "," << j << " - " << en.first << "," << en.second << ": " << c_1 << '\n';
+                    cout << i2 << "," << j2 << " - " << i2 + s2 << "," << j2 + f2 << ": " << c_11 << "\n===\n";
+
                     ans = max(ans, ou_2 + (c_1 + c_11));
                 }
             }
@@ -125,7 +132,7 @@ int32_t main() {
 
     int ans = 0;
     for (int i=0; i<n-1; i++) {
-        ans = max(ans, solve(n, {1, i}, {1, n - i}));
+        ans = max(ans, solve(n, {1, i}, {1, n - i - 1}));
         // ans = max(ans, solve(n, {2, n - i}, {2, i}));
         // break;
     }
