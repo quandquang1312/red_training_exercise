@@ -13,6 +13,7 @@ using namespace std;
 */
 
 int arr[15][15];
+int total_1, total_2;
 
 int count_1(int x1, int y1, int x2, int y2) {
     int ans = 0;
@@ -43,17 +44,23 @@ int solve(int n, pair<int, int> ch, pair<int, int> ch2) {
                 if (i2 >= i && i2 <= en.first) continue;
                 for (int j2=1; j2<=n; j2++) {
                     if (j2 >= j && j2 <= en.second) continue;
+
                     // Case 1.1
                     if (i2 + s2 > n || j2 + f2 > n) continue;
                     int c_11 = count_1(i2, j2, i2 + s2, j2 + f2);
-                    // cout << "cp\n";
+                    int in_1 = c_1 + c_11;
+                    int in_2 = (2 * n) - in_1;
+                    int ou_2 = total_2 - in_2;
 
-                    ans = max(ans, n * n - ((2 * n) - (c_1 + c_11)));
+                    ans = max(ans, ou_2 + (c_1 + c_11));
+
                     // Case 1.2, rotate
                     if (i2 + f2 > n || j2 + s2 > n) continue;
                     int c_12 = count_1(i2, j2, i2 + f2, j2 + s2);
-                    ans = max(ans, n * n - ((2 * n) - (c_1 + c_12)));
-                    // cout << "cp\n";
+                    in_1 = c_1 + c_11;
+                    in_2 = (2 * n) - in_1;
+                    ou_2 = total_2 - in_2;
+                    ans = max(ans, ou_2 + (c_1 + c_11));
                 }
             }
 
@@ -62,17 +69,26 @@ int solve(int n, pair<int, int> ch, pair<int, int> ch2) {
             if (en.first > n || en.second > n) continue;
             c_1 = count_1(i, j, en.first, en.second);
             for (int i2=1; i2<=n; i2++) {
+                if (i2 >= i && i2 <= en.first) continue;
                 for (int j2=1; j2<=n; j2++) {
-                    // Case 1.1
-                    if (i2 + s2 >= i || j2 + f2 >= j) continue;
-                    int c_11 = count_1(i2, j2, i2 + s2, j2 + f2);
+                    if (j2 >= j && j2 <= en.second) continue;
 
-                    ans = max(ans, n * n - ((2 * n) - (c_1 + c_11)));
+                    // Case 1.1
+                    if (i2 + s2 > n || j2 + f2 > n) continue;
+                    int c_11 = count_1(i2, j2, i2 + s2, j2 + f2);
+                    int in_1 = c_1 + c_11;
+                    int in_2 = (2 * n) - in_1;
+                    int ou_2 = total_2 - in_2;
+
+                    ans = max(ans, ou_2 + (c_1 + c_11));
+
                     // Case 1.2, rotate
-                    if (i2 + f2 >= i || j2 + s2 >= j) continue;
+                    if (i2 + f2 > n || j2 + s2 > n) continue;
                     int c_12 = count_1(i2, j2, i2 + f2, j2 + s2);
-                    ans = max(ans, n * n - ((2 * n) - (c_1 + c_12)));
-                    cout << "cp\n";
+                    in_1 = c_1 + c_11;
+                    in_2 = (2 * n) - in_1;
+                    ou_2 = total_2 - in_2;
+                    ans = max(ans, ou_2 + (c_1 + c_11));
                 }
             }
         }
@@ -95,6 +111,8 @@ int32_t main() {
     for (int i=1; i<=n; i++) {
         for (int j=1; j<=n; j++) {
             cin >> arr[i][j];
+            if (arr[i][j] == 1) total_1++;
+            else if (arr[i][j] == 2) total_2++;
         }
     }
 
@@ -106,7 +124,7 @@ int32_t main() {
     // }
 
     int ans = 0;
-    for (int i=0; i<n; i++) {
+    for (int i=0; i<n-1; i++) {
         ans = max(ans, solve(n, {1, i}, {1, n - i}));
         // ans = max(ans, solve(n, {2, n - i}, {2, i}));
         // break;
