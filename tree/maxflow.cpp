@@ -3,27 +3,34 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#define MAXN 100100
+#define MAXN 60100
 
 vector<vector<int>> adj;
-vector<int> startIdx, endIdx;
+vector<int> startIdx, endIdx, neg;
 int n, q, arr[MAXN], diff[MAXN], timer;
 
 void update(int l, int r, int vl) {
     diff[l] += vl;
-    diff[r] -= vl;
+    diff[r + 1] -= vl;
 }
 
 void apply_update()
 {
-    for (int i=0; i<=n*2; i++) diff[i] += diff[i-1];
+    for (int i=1; i<=timer; i++) {
+        diff[i] += diff[i-1];
+        if (neg[i] < 0) {
+            diff[startIdx[-neg[i]]] -= diff[i];
+        }
+    }
 }
 
 void euler_tour(int at, int prev) {
+    neg[timer] = at;
     startIdx[at] = timer++;
     for (int v : adj[at]) {
-        if (v != prev) { euler_tour(v, at); }
+        if (v != prev) { euler_tour(v, at); } 
     }
+    neg[timer] = -at;
     endIdx[at] = timer++;
 }
 
@@ -100,7 +107,7 @@ int32_t main() {
         freopen("ou.txt", "w", stdout);
     #else
         freopen("maxflow.in", "r", stdin);
-        freopen("maxflow.in", "w", stdout);
+        freopen("maxflow.out", "w", stdout);
     #endif
 
     cin >> n >> q;
@@ -108,6 +115,7 @@ int32_t main() {
     adj.resize(n + 1);
     startIdx.assign(n + 1, 0);
     endIdx.assign(n + 1, 0);
+    neg.assign(MAXN, 0);
 
     for (int i=0, u, v; i<n-1; i++) {
         cin >> u >> v;
@@ -116,15 +124,18 @@ int32_t main() {
     }
 
     euler_tour(1, 0);
-    for (int i=1; i<=n; i++) {
-        cout << startIdx[i] << " = " << endIdx[i] << '\n';
-    }
-
+    // for (int i=1; i<=n; i++) {
+    //     cout << i << "-" << startIdx[i] << '\n';
+    // }
     LCA mLCA(adj, 1);
 
-    auto getPos = [&](int u, int v) -> pair<int, int> {
-        if (startIdx[u] > startIdx[v]) return {v, u};
-        return {u,v};
+    auto getEndpoints = [&](int u, int v, int w) -> pair<int, int> {
+        vector<int> arr {u, v, w};
+        sort(arr.begin(), arr.end(), [&](int a, int b) {
+            return startIdx[a] < startIdx[b];
+        });
+
+        return {arr[0], arr[2]};
     };
 
     while (q--) {
@@ -133,14 +144,19 @@ int32_t main() {
         
         int w = mLCA.lca(u, v);
 
-        auto [a, b] = getPos(u, w);
-        auto [c, d] = getPos(v, w);
-
-        update(startIdx[a], startIdx[v], 1);
+        auto [a, b] = getEndpoints(u, v, w);
+        update(startIdx[a], startIdx[b], 1);
     }
 
     apply_update();
 
+    int ans = 0;
+    for (int i=0; i<=timer; i++) {
+        // cout << i << " " << diff[i] << '\n';
+        ans = max(ans, diff[i]);
+    }
+
+    cout << ans << '\n';
 
     return 0;
 }
