@@ -6,33 +6,8 @@ using namespace std;
 #define MAXN 60100
 
 vector<vector<int>> adj;
-vector<int> startIdx, endIdx, neg;
-int n, q, arr[MAXN], diff[MAXN], timer;
-
-void update(int l, int r, int vl) {
-    diff[l] += vl;
-    diff[r + 1] -= vl;
-}
-
-void apply_update()
-{
-    for (int i=1; i<=timer; i++) {
-        diff[i] += diff[i-1];
-        if (neg[i] < 0) {
-            diff[startIdx[-neg[i]]] -= diff[i];
-        }
-    }
-}
-
-void euler_tour(int at, int prev) {
-    neg[timer] = at;
-    startIdx[at] = timer++;
-    for (int v : adj[at]) {
-        if (v != prev) { euler_tour(v, at); } 
-    }
-    neg[timer] = -at;
-    endIdx[at] = timer++;
-}
+vector<int> S, E, ans;
+int n, q;
 
 struct LCA {
     vector<int> height, euler, first, segtree;
@@ -98,6 +73,22 @@ struct LCA {
     }
 };
 
+int dfs(int u, int par) {
+    int sm = 0;
+    for (auto &v : adj[u]) {
+        if (v == par) continue;
+        sm += dfs(v, u);
+    }
+
+    // for every twos of path go through u as LCA
+    // we count only one, so E[u]/2
+    ans[u] = sm + S[u] - E[u]/2;
+
+    // since every pair of children nodes go through u as the LCA we S[a]++, S[b]++,
+    // then we have to eliminate all of the children nodes
+    return sm + S[u] - E[u];
+}
+
 int32_t main() {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr); cout.tie(nullptr);
@@ -113,9 +104,9 @@ int32_t main() {
     cin >> n >> q;
 
     adj.resize(n + 1);
-    startIdx.assign(n + 1, 0);
-    endIdx.assign(n + 1, 0);
-    neg.assign(MAXN, 0);
+    S.assign(n + 1, 0);
+    E.assign(n + 1, 0);
+    ans.assign(n + 1, 0);
 
     for (int i=0, u, v; i<n-1; i++) {
         cin >> u >> v;
@@ -123,20 +114,7 @@ int32_t main() {
         adj[v].push_back(u);
     }
 
-    euler_tour(1, 0);
-    // for (int i=1; i<=n; i++) {
-    //     cout << i << "-" << startIdx[i] << '\n';
-    // }
     LCA mLCA(adj, 1);
-
-    auto getEndpoints = [&](int u, int v, int w) -> pair<int, int> {
-        vector<int> arr {u, v, w};
-        sort(arr.begin(), arr.end(), [&](int a, int b) {
-            return startIdx[a] < startIdx[b];
-        });
-
-        return {arr[0], arr[2]};
-    };
 
     while (q--) {
         int u, v;
@@ -144,19 +122,17 @@ int32_t main() {
         
         int w = mLCA.lca(u, v);
 
-        auto [a, b] = getEndpoints(u, v, w);
-        update(startIdx[a], startIdx[b], 1);
+        S[u]++, S[v]++, E[w] += 2;
     }
 
-    apply_update();
+    dfs(1, 0);
 
-    int ans = 0;
-    for (int i=0; i<=timer; i++) {
-        // cout << i << " " << diff[i] << '\n';
-        ans = max(ans, diff[i]);
+    int rs = 0;
+    for (int i=1; i<=n; i++) {
+        rs = max(rs, ans[i]);
     }
 
-    cout << ans << '\n';
+    cout << rs << '\n';
 
     return 0;
 }

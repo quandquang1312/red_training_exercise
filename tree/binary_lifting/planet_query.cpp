@@ -40,6 +40,7 @@ int32_t main() {
 
     memset(up, -1, sizeof up);
 
+    // Because 1 parent has only 1 child
     for (int i=1, x; i<=n; i++) {
         cin >> x;
         up[i][0] = x;
