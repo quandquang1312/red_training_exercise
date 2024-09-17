@@ -27,29 +27,24 @@ void diameter() {
     dist.assign(n + 1, 0);
     dfs(1, 0, 0, adj);
 
-    vector<int> d1 = dist;
-
     int a = farthest;
 
     farthest = 0;
     dist.assign(n + 1, 0);
     dfs(a, 0, 0, adj);
 
-    vector<int> d2 = dist;
+    vector<int> d1 = dist;
     int b = farthest;
+
+    dist.assign(n + 1, 0);
+    dfs(b, 0, 0, adj);
+    vector<int> d2 = dist;
 
     int d = dist[farthest];
 
     for (int i=1; i<=n; i++) {
         int ans_i = max(d1[i] + 1, d2[i] + 1);
         cout << max(d, ans_i) << "\n";
-        // if (i == a || i == b) {
-        //     cout << d + 1 << "\n";
-        // } else if (d1[i] == d - 1 || d2[i] == d - 1) {
-        //     cout << d << "\n";
-        // } else {
-        //     cout << d + 1 << "\n";
-        // }
     }
 }
 
