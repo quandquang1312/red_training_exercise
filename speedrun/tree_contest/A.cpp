@@ -3,9 +3,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-vector<vector<int>> adj;
-
-int farthest = 0, a, b;
+int farthest = 0;
 vector<int> dist;
 
 void dfs(int u, int par, int d, vector<vector<int>> &adj) {
@@ -20,9 +18,7 @@ void dfs(int u, int par, int d, vector<vector<int>> &adj) {
     }
 }
 
-void diameter() {
-    int n = adj.size() - 1;
-
+int diameter(int n, vector<vector<int>> &adj) {
     farthest = 0;
     dist.assign(n + 1, 0);
     dfs(1, 0, 0, adj);
@@ -33,19 +29,7 @@ void diameter() {
     dist.assign(n + 1, 0);
     dfs(a, 0, 0, adj);
 
-    vector<int> d1 = dist;
-    int b = farthest;
-
-    dist.assign(n + 1, 0);
-    dfs(b, 0, 0, adj);
-    vector<int> d2 = dist;
-
-    int d = dist[farthest];
-
-    for (int i=1; i<=n; i++) {
-        int ans_i = max(d1[i] + 1, d2[i] + 1);
-        cout << max(d, ans_i) << "\n";
-    }
+    return dist[farthest];
 }
 
 int32_t main() {
@@ -59,14 +43,16 @@ int32_t main() {
 
     int n; cin >> n;
 
-    adj.resize(n + 1);
+    vector<vector<int>> adj(n + 1);
     for (int i=0, u, v; i<n-1; i++) {
         cin >> u >> v;
         adj[u].push_back(v);
         adj[v].push_back(u);
     }
 
-    diameter();
+    int d = diameter(n, adj);
+    int circumfence = d * 3;
+    cout << circumfence << "\n";
 
     return 0;
 }
