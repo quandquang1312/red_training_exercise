@@ -28,7 +28,7 @@ struct Matrix {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
                 for (int k = 0; k < n_cols; k++) {
-                    result.mat[i][j] += mat[i][k] * other.mat[k][j];
+                    result.mat[i][j] += (mat[i][k] * other.mat[k][j]) % MOD;
                     result.mat[i][j] %= MOD;
                 }
             }
@@ -71,17 +71,18 @@ int32_t main() {
         freopen("../ou.txt", "w", stdout);
     #endif
 
-    Matrix base(2,2);
-    base.mat = {{1, 1}, {1, 0}};
-
     int n; cin >> n;
 
-    Matrix state(2,1);
-    state.mat = {{1}, {0}};
+    if (n == 0) {
+        cout << "0\n";
+        return 0;
+    }
 
-    state = base.pow(n - 1) * state;
+    Matrix base(2,2);
+    base.mat = {{1, 1}, {1, 0}};
+    Matrix ans = base.pow(n - 1);
 
-    cout << (state.mat[0][0]) << '\n';
+    cout << (ans.mat[0][0]) << '\n';
 
     return 0;
 }
