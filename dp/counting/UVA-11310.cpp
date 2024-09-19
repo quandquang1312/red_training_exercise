@@ -17,28 +17,19 @@ int32_t main() {
     #endif
 
     int dp[55] {};
-    dp[1] = 1, dp[2] = 4;
-    for (int i=3; i<=10; i++) {
-        dp[i] += dp[i-1];
-        dp[i] += dp[i-2] * 4;
-        dp[i]++;
-    }
+    dp[0] = 1;
 
-    for (int i=1; i<=10; i++) {
-        cout << i << ": " << dp[i] << endl;
+    for (int i=0; i<=40; i++) {
+        dp[i + 1] += dp[i];
+        dp[i + 2] += dp[i] * 4;
+        dp[i + 3] += dp[i] * 2;
     }
-    // cout << dp[3] << endl << dp[4] << endl;
-
-    // for (int i=3; i<=40; i++) {
-        
-    // }
 
     int tc; cin >> tc;
     while (tc--)
     {
         int n; cin >> n;
-
-
+        cout << dp[n] << "\n";
     }
 
     return 0;
