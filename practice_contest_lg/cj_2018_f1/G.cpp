@@ -4,6 +4,7 @@
 using namespace std;
 
 #define int long long
+const int INF = 1e9;
 
 class UnionFind {
 private:
@@ -39,6 +40,26 @@ public:
     }
 };
 
+int kruskal(int n, const vector<tuple<int, int, int>>& Edges, vector<bool>& removed, int& rm) {
+    int mst = 0, cnt = 0;
+    rm = INF;
+
+    UnionFind UF(n + 1);
+    for (auto &[w, u, v] : Edges) {
+        if (removed[w]) continue;
+        if (UF.isSameSet(u, v)) continue;
+
+        mst += w;
+        UF.unionSet(u, v);
+        rm = min(rm, w);
+        cnt++;
+
+        if (cnt == n - 1) break;
+    }
+
+    return (cnt == n - 1 ? mst : 0);
+}
+
 int32_t main() {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr); cout.tie(nullptr);
@@ -57,29 +78,14 @@ int32_t main() {
         Edges.push_back({w, u, v});
     }
 
-    sort(Edges.begin(), Edges.end());
+    vector<bool> removed(m + 1, false);
 
-    UnionFind UF(n + 1);
-
-    int mst = 0, cnt = 0;
-    vector<tuple<int, int, int>> paths;
-    for (auto &[w, u, v] : Edges) {
-        if (UF.isSameSet(u, v)) continue;
-        mst += w;
-        UF.unionSet(u, v);
-        paths.push_back({w, u, v});
-        cnt++;
-
-        if (cnt == n - 1) break;
+    int rm = -1;
+    for (int i=0; i<k; i++) {
+        int mst = kruskal(n, Edges, removed, rm);
+        cout << mst << " ";
+        removed[rm] = true;
     }
-
-    sort(paths.begin(), paths.end());
-
-    for (auto &[w, u, v] : paths) {
-        cout << u << " - " << v << ": " << w << "\n";
-    }
-
-    cout << mst << endl;
 
     return 0;
 }
