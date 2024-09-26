@@ -36,7 +36,7 @@ bool kuhn(int u) {
     return false;
 }
 
-int solve(int m) {
+int maximum_matching(int m) {
     int matching = 0;
     while (true) {
         memset(visited, false, sizeof visited);
@@ -51,6 +51,10 @@ int solve(int m) {
     }
 
     return matching;
+}
+
+int solve_greedy() {
+    
 }
 
 int32_t main() {
@@ -79,7 +83,7 @@ int32_t main() {
             }
         }
 
-        int ans = solve(m);
+        int ans = maximum_matching(m);
         cout << ans << endl;
     }
 

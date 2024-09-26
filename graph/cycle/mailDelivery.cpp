@@ -7,7 +7,7 @@ vector<vector<pair<int, int>>> adj;
 vector<int> path;
 vector<bool> visited;
 
-// eulerian path undirected graph
+// eulerian cycle undirected graph
 void dfs(int u) {
     while (!adj[u].empty()) {
         auto [street_idx, v] = adj[u].back();

@@ -4,7 +4,7 @@
 using namespace std;
 
 #define int long long
-#define MAXN 200050
+#define MAXN 200010
 
 bool visited[MAXN];
 int RightMatch[MAXN], LeftMatch[MAXN];
@@ -26,7 +26,7 @@ bool kuhn(int u, vector<vector<int>>& adj) {
     return false;
 }
 
-int solve(int m, vector<vector<int>>& adj) {
+int maximum_matching(int m, vector<vector<int>>& adj) {
     int matching = 0;
     while (true) {
         memset(visited, false, sizeof visited);
@@ -41,6 +41,28 @@ int solve(int m, vector<vector<int>>& adj) {
     }
 
     return matching;
+}
+
+int solve_greedy(vector<int>& riders, vector<pair<int, int>>& drivers) {
+    multiset<int> ms(riders.begin(), riders.end());
+
+    // Sort by end point to maximum the later options
+    sort(drivers.begin(), drivers.end(), [] (pair<int, int> p1, pair<int, int> p2) {
+        if (p1.second == p2.second) return p1.first < p2.first;
+        return p1.second < p2.second;
+    });
+
+    // matching each drivers with the available rider.
+    // if can't, it means we can't match this driver, ignore him
+    int ans = 0;
+    for (auto &e : drivers) {
+        auto it = ms.lower_bound(e.first);
+        if (it == ms.end() || *it > e.second) continue;
+        ans++;
+        ms.erase(it);
+    }
+
+    return ans;
 }
 
 int32_t main() {
@@ -73,31 +95,23 @@ int32_t main() {
         sort(riders.begin(), riders.end());
         sort(riders_rev.begin(), riders_rev.end());
 
-        vector<vector<int>> adj(m + n);
-        for (int u=0; u<drivers.size(); u++) {
-            auto e = drivers[u];
-            cout << e.first << " -> ";
-            // greater
-            int pos_l = lower_bound(riders.begin(), riders.end(), e.first) - riders.begin();
-            int pos_r = lower_bound(riders_rev.begin(), riders_rev.end(), -e.second) - riders_rev.begin();
-            pos_r = n - pos_r;
+        // * for bipartitie maximum matching implementation
+        // vector<vector<int>> adj(m + n);
+        // for (int i=0; i<m; i++) {
+        //     auto e = drivers[i];
 
-            for (int i=pos_l; i < n && i <= pos_r; i++) {
-                cout << riders[i] << " ";
-                adj[u].push_back(m + i);
-                adj[m + i].push_back(u);
-            }
-            cout << endl;
-        }
+        //     for (int j=0; j<n; j++) {
+        //         if (e.first <= riders[j] && riders[j] <= e.second) {
+        //             adj[i].push_back(m + j);
+        //             adj[m + j].push_back(i);
+        //         }
+        //     }
+        // }
 
-        for (int i=0; i<m; i++) {
-            cout << drivers[i].first << ": ";
-            for (auto &e : adj[i]) {
-                cout << e << " ";
-            } cout << endl;
-        }
-
-        int ans = solve(m, adj);
+        // int ans = maximum_matching(m, adj);
+        // cout << ans << endl;
+    
+        int ans = solve_greedy(riders,drivers);
         cout << ans << endl;
     }
 
