@@ -36,7 +36,10 @@ int32_t main() {
             cnt += ans_u;
         }
 
-        cout << (cnt / 2) << endl;
+        // nCk with k = 3 is (n * (n - 1) * (n - 2)) / 3!
+        int total = (n * (n - 1) * (n - 2)) / (1 * 2 * 3);
+
+        cout << total - (cnt / 2) << endl;
     }
 
     return 0;
