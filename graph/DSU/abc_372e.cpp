@@ -57,33 +57,47 @@ int32_t main() {
         cin >> tp >> u >> v;
 
         if (tp == 1) {
+            int pu = UF.findSet(u);
+            int pv = UF.findSet(v);
+
             UF.unionSet(u, v);
             int p = UF.findSet(u);
-            mp[p].insert(u);
-            mp[p].insert(v);
-        } else {
-            int ns = UF.sizeOfSet(u);
 
-            if (ns < v) {
+            if (p == pu) {
+                for (auto &e : mp[pv]) {
+                    mp[p].insert(e);
+                }
+            } else {
+                for (auto &e : mp[pu]) {
+                    mp[p].insert(e);
+                }
+            }
+
+            mp[p].insert(-u);
+            mp[p].insert(-v);
+            while (mp[p].size() > 10) mp[p].erase(prev(mp[p].end()));
+        } else {
+            int p = UF.findSet(u);
+            int sz = UF.sizeOfSet(p);
+
+            if (sz < v) {
                 cout << "-1\n";
                 continue;
             }
 
-            int p = UF.findSet(u);
-            int sz = UF.sizeOfSet(p);
-
-            auto it = mp[p].begin();
             if (sz == 1) {
                 cout << u << "\n";
                 continue;
             }
-            auto upos = distance(it, mp[p].find(u));
 
-            // if (upos > v) v--;
-            v = sz - v + 1;
-
-            advance(it, v - 1);
-            cout << *it << "\n";
+            int cnt = 1;
+            for (auto &e : mp[p]) {
+                if (cnt == v) {
+                    cout << -e << "\n";
+                    break;
+                }
+                cnt++;
+            }
         }
     }
 
