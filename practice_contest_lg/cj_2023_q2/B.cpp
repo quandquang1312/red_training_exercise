@@ -4,6 +4,26 @@
 using namespace std;
 
 #define int long long
+const int INF = 1e18;
+
+bool check(int val, int no_interval, vector<int>& arr) {
+    int interval_used = 1;
+    int rm = 0, sm = 0, cnt = 1;
+    // count the sum of every sebsequence in an array
+    for (int i=0; i<arr.size(); i++) {
+        if (interval_used > no_interval) return false;
+        rm += arr[i] * cnt;
+        if (sm + rm <= val) {
+            sm += rm;
+            cnt++;
+        } else {
+            rm = 0, sm = 0, cnt = 1;
+            interval_used++;
+        }
+    }
+
+    return interval_used <= no_interval;
+}
 
 int32_t main() {
     ios_base::sync_with_stdio(false);
@@ -18,39 +38,25 @@ int32_t main() {
     while (tc--) {
         int n, m; cin >> n >> m;
 
-        vector<int> arr(n), freq(n, 0);
-        for (int i=0; i<n; i++) cin >> arr[i];
+        vector<int> arr(n-1);
+        for (int i=0; i<n-1; i++) cin >> arr[i];
 
-        int total = (n * (n + 1)) / 2;
-        for (int i=0; i<n; i++) {
-            if (i == 0 || i == n - 1) {
-                freq[i] = total - (n * (n - 1)) / 2;
+        int l = 0, r = INF - 1;
+
+        // for (int i=0; i<20; i++) {
+        //     cout << i << ": " << check(i, m, arr) << "\n";
+        // }
+
+        while (l < r) {
+            int mid = (l + r) / 2;
+            if (check(mid, m, arr)) {
+                r = mid;
             } else {
-                int lf = (i * (i + 1)) / 2;
-                int rt = ((n - i) * ((n - i) + 1)) / 2;
-                freq[i] = total - lf - rt - 1;
+                l = mid + 1;
             }
         }
 
-        vector<int> presum(n + 1, 0);
-        for (int i=0; i<n; i++) {
-            presum[i + 1] = presum[i] + freq[i] * arr[i];
-            // cout << i << ": " << freq[i] << "\n";
-        }
-
-        int mmin = 1e9;
-        for (int i=1; i<n-1; i++) {
-
-            int k = i;
-            int lf = presum[i];
-            int rt = presum[n] - presum[i + 1];
-            int mx = max(lf, rt);
-            mmin = min(mmin, mx);
-            cout << lf << " -" << i << "- " << rt << "\n";
-        }
-
-        cout << mmin << endl;
-
+        cout << l << "\n";
     }
 
     return 0;
