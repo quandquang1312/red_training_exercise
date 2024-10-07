@@ -1,4 +1,6 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <cstdint>
+#include <vector>
 using namespace std;
 
 int n, ans = 0;
@@ -44,21 +46,17 @@ int32_t main() {
     while (tc--) {
         cin >> n;
 
-        presum = vector<vector<int>>(n, vector<int>(n, 0));
+        presum = vector<vector<int>>(n+1, vector<int>(n+1,0));
 
-        for (int i=0; i<n; i++) {
-            for (int j=0; j<n; j++) {
+        for (int i=1; i<=n; i++) {
+            for (int j=1; j<=n; j++) {
                 char ch; cin >> ch;
                 int tmp = ch - '0';
-                int prei = 0, prej = 0, preij = 0;
-                if (i != 0) prei = presum[i-1][j];
-                if (j != 0) prej = presum[i][j-1];
-                if (i != 0 && j != 0) preij = presum[i-1][j-1];
-                presum[i][j] = tmp + prei + prej - preij;
+                presum[i][j] = tmp + presum[i-1][j] + presum[i][j-1] - presum[i-1][j-1];
             }
         }
 
-        solve(0, 0, n-1, n-1);
+        solve(1,1,n,n);
 
         cout << ans << endl;
         ans = 0;
