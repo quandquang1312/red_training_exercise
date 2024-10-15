@@ -6,81 +6,95 @@ using namespace std;
 #define int long long
 
 vector<vector<pair<int, int>>> adj;
-vector<vector<pair<int, int>>> dp; 
+vector<pair<int, int>> dp; 
 vector<int> D, ans;
 
-void dfs(int u, int par) {
-    vector<pair<int, int>> tmp;
+int dfs(int u, int par) {
+    int d = 0;
     for (auto &[v, w] : adj[u]) {
         if (v == par) continue;
-        dfs(v, u);
-        if (dp[v].size() == 0) {
-            tmp.push_back({v, w});
-        } else {
-            tmp.push_back({dp[v][0].first, w + dp[v][0].second});
+        int ans_v = dfs(v, u) + w;
+        if (ans_v >= dp[u].first) {
+            dp[u].second = dp[u].first;
+            dp[u].first = ans_v;
+        } else if (ans_v > dp[u].second) {
+            dp[u].second = ans_v;
         }
     }
 
-    if (tmp.empty()) {
-        dp[u].clear();
-    } else {
-        sort(tmp.begin(), tmp.end(), [](pair<int, int> p1, pair<int, int> p2) {
-            return p1.second + p1.first < p2.second + p2.first;
-        });
-
-        if (tmp.size() >= 2) {
-            dp[u].push_back(tmp[tmp.size() - 1]);
-            dp[u].push_back(tmp[tmp.size() - 2]);
-        } else if (tmp.size() == 1) {
-            dp[u].push_back(tmp[0]);
-        }
-    }
+    return max(D[u], dp[u].first);
 }
 
-void rerooting(int u, int par, int dw) {
-    ans[u] = D[dp[u][0].first] + dp[u][0].second;
+void rerooting(int u, int par) {
+    ans[u] = dp[u].first;
 
-    for (auto &[v, w] : adj[u]) {
+    vector<pair<int, int>> pre(adj[u].size() + 1, {0, 0}), suf(adj[u].size() + 1, {0, 0});
+    for (int i=0; i<adj[u].size(); i++) {
+        auto [tmp_v, tmp_w] = adj[u][i];
+        int ans_v = max(D[tmp_v], dp[tmp_v].first) + tmp_w;
+        pre[i+1] = pre[i];
+        if (ans_v >= pre[i+1].first) {
+            pre[i+1].second = pre[i+1].first;
+            pre[i+1].first = ans_v;
+        } else if (ans_v > pre[i+1].second) {
+            pre[i+1].second = ans_v;
+        }
+    }
+
+    for (int i=adj[u].size()-1; i>=0; i--) {
+        auto [tmp_v, tmp_w] = adj[u][i];
+        int ans_v = max(D[tmp_v], dp[tmp_v].first) + tmp_w;
+        suf[i] = suf[i+1];
+        if (ans_v >= suf[i].first) {
+            suf[i].second = suf[i].first;
+            suf[i].first = ans_v;
+        } else if (ans_v > suf[i].second) {
+            suf[i].second = ans_v;
+        }
+    }
+
+    for (int i=0; i<adj[u].size(); i++) {
+        auto [v, w] = adj[u][i];
         if (v == par) continue;
 
-        // detach v from u
-        vector<pair<int, int>> o_u = dp[u], o_v = dp[v];
-        dp[u].clear();
-        // dp[v].clear();
+        // save ori
+        pair<int, int> o_u = dp[u], o_v = dp[v];
 
-        vector<pair<int, int>> tmp;
-        for (auto [tmp_v, tmp_w] : adj[u]) {
-            if (v == tmp_v) continue;
-            if (!dp[tmp_v].empty()) tmp.push_back({dp[tmp_v][0].first, tmp_w + dp[tmp_v][0].second});
-            else tmp.push_back({tmp_v, tmp_w});
+        // detach
+        // brute force
+        // dp[u] = {0, 0};
+        // for (auto &[tmp_v, tmp_w] : adj[u]) {
+        //     if (tmp_v == v) continue;
+        //     int ans_v = max(D[tmp_v], dp[tmp_v].first) + tmp_w;
+        //     if (ans_v >= dp[u].first) {
+        //         dp[u].second = dp[u].first;
+        //         dp[u].first = ans_v;
+        //     } else if (ans_v > dp[u].second) {
+        //         dp[u].second = ans_v;
+        //     }
+        // }
+
+
+        // int max_cost = max(dp[u].first, D[u]);
+        // max_cost += w;
+
+        vector<int> tmp_dp = {pre[i].first, pre[i].second, suf[i+1].first, suf[i+1].second};
+        sort(tmp_dp.begin(), tmp_dp.end(), greater<int>());
+        dp[u] = {tmp_dp[0], tmp_dp[1]};
+
+        int max_cost = max(dp[u].first, D[u]);
+        max_cost += w;
+
+        // attach
+        if (max_cost >= dp[v].first) {
+            dp[v].second = dp[v].first;
+            dp[v].first = max_cost;
+        } else if (max_cost > dp[u].second) {
+            dp[v].second = max_cost;
         }
 
-        sort(tmp.begin(), tmp.end(), [](pair<int, int> p1, pair<int, int> p2) {
-            return p1.second + p1.first < p2.second + p2.first;
-        });
+        rerooting(v, u);
 
-        if (tmp.size() >= 2) {
-            dp[u].push_back(tmp[tmp.size() - 1]);
-            dp[u].push_back(tmp[tmp.size() - 2]);
-        } else if (tmp.size() == 1) {
-            dp[u].push_back(tmp[0]);
-        }
-
-        // attack u to v
-        if (dp[u].size()) dp[v].push_back({dp[u][0].first, w + dp[u][0].second});
-        if (!dp[v].size()) dp[v].push_back({u, w + D[u]});
-
-        sort(dp[v].begin(), dp[v].end(), [](pair<int, int> p1, pair<int, int> p2) {
-            return p1.second + p1.first < p2.second + p2.first;
-        });
-
-        reverse(dp[v].begin(), dp[v].end());
-        dp[v].resize(2);
-
-        // reroot
-        rerooting(v, u, w);
-
-        // backtrack
         dp[u] = o_u, dp[v] = o_v;
     }
 }
@@ -99,7 +113,7 @@ int32_t main() {
     adj.resize(n + 1);
     D.resize(n + 1);
     ans.resize(n + 1);
-    dp.assign(n + 1, vector<pair<int, int>>());
+    dp.assign(n + 1, {0, 0});
 
     for (int i=1, u, v, w; i<n; i++) {
         cin >> u >> v >> w;
@@ -107,16 +121,13 @@ int32_t main() {
         adj[v].push_back({u, w});
     }
 
-    for (int i=1, d; i<=n; i++) cin >> D[i];
+    for (int i=1; i<=n; i++) cin >> D[i];
 
     dfs(1, 0);
-    rerooting(1, 0, 0);
+    rerooting(1, 0);
 
     for (int i=1; i<=n; i++) {
         cout << ans[i] << "\n";
-        // for (auto &e : dp[i]) {
-        //     cout << " - " << e.second + D[e.first] << "\n";
-        // }
     }
 
     return 0;
