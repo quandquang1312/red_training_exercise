@@ -6,6 +6,8 @@ using namespace std;
 #define int long long
 
 vector<int> color, parent, adj, cnt, indegree;
+vector<vector<int>> adj_t;
+vector<bool> visited;
 pair<int, int> cy = {-1, -1};
 
 bool checkCycle(int u)
@@ -13,17 +15,20 @@ bool checkCycle(int u)
     color[u] = 1;
 
     int v = adj[u];
-    if (v == u) return false;
     if (color[v] == 0) {
         parent[v] = u;
-        if (checkCycle(v))
+        if (checkCycle(v)) {
+            visited[u] = true;
             return true;
-    } else if (color[v] == 1) {
+        }
+    } else if (color[v] == 1 && !visited[v]) {
         cy = {v, u};
+        visited[u] = true;
         return true;
     }
 
     color[u] = 2;
+    visited[u] = true;
     return false;
 }
 
@@ -39,84 +44,60 @@ int32_t main() {
     int n; cin >> n;
 
     adj.assign(n+1, 0);
+    adj_t.resize(n+1);
     color.assign(n+1, 0);
     cnt.assign(n+1, 0);
     parent.assign(n+1, -1);
     indegree.assign(n+1, 0);
+    visited.assign(n+1, false);
 
     for (int i=1; i<=n; i++) {
         int ax; cin >> ax;
         adj[i] = ax;
-        if (ax == i) continue;
+        adj_t[ax].push_back(i);
         indegree[ax]++;
     }
 
-    queue<int> q;
-    vector<bool> isIncycle(n+1, false);
-    vector<vector<int>> cycles;
+    queue<int> out_cycle;
     for (int i=1; i<=n; i++) {
-        cout << i << ": " << color[i] << endl;
         if (color[i] == 0) {
-            if (checkCycle(i)) {
-                vector<int> c;
-                c.push_back(cy.first);
-
-                int v = adj[cy.first];
-                while (v != cy.first) {
-                    c.push_back(v);
-                    isIncycle[v] = true, v = adj[v];
+            bool rs = checkCycle(i);
+            if (rs) {
+                int st = cy.first;
+                int c = 1;
+                while (st != cy.second) {
+                    c++;
+                    if (indegree[st] > 1) out_cycle.push(st);
+                    st = adj[st];
                 }
-                cycles.push_back(c); 
+                if (indegree[st] > 1) out_cycle.push(st);
+
+                st = cy.first;
+                while (st != cy.second) {
+                    cnt[st] = c;
+                    st = adj[st];
+                }
+                cnt[st] = c;
             }
+            cy = {-1, -1};
         }
     }
 
-    for (auto &c : cycles) {
-        for (auto &e : c) {
-            cout << e << " ";
-            cnt[e] = c.size();
-        }
-        cout << endl;
-    }
+    while (out_cycle.size()) {
+        int u = out_cycle.front();
+        out_cycle.pop();
 
-    for (auto &c : cycles) {
-        for (auto &e : c) {
-            cnt[e] = c.size();
+        for (auto &v : adj_t[u]) {
+            if (cnt[v] != 0) continue;
+            cnt[v] = cnt[u] + 1;
+            out_cycle.push(v);
         }
     }
 
-    color.assign(n+1, 0);
-    for (int i=1; i<=n; i++) {
-        cnt[i] = max(cnt[i], 1LL);
-        if (indegree[i] == 0)
-            color[i] = 1, q.push(i);
-    }
+    int ans = 0;
+    for (int i=1; i<=n; i++) ans += cnt[i];
 
-    // cout << q.size() << endl;
-
-    while (!q.empty())
-    {
-        int u = q.front(); q.pop();
-        int v = adj[u];
-
-        if (isIncycle[v] || color[v] == 1) continue;
-        indegree[v]--;
-        cnt[v] += cnt[u];
-
-        if (indegree[v] == 0 && color[v] == 0 && isIncycle[v] == false)
-            q.push(v), color[v] = 1;
-    }
-
-    // cout << "t: " << ttl_c << endl;
-
-    int rs = 0;
-    for (int i=1; i<=n; i++) {
-        rs += cnt[i];
-        cout << i << ": " << cnt[i] << "\n";
-    }
-    // cout << endl;
-
-    cout << rs << endl;
+    cout << ans << "\n";
 
     return 0;
 }
