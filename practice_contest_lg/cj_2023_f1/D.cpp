@@ -4,6 +4,7 @@
 using namespace std;
 
 #define int long long
+#define INF 1e13
 
 int32_t main() {
     ios_base::sync_with_stdio(false);
@@ -18,45 +19,58 @@ int32_t main() {
     while (tc--) {
         int n, k; cin >> n >> k;
 
+        // k *= 2;
+
         vector<int> A(n), B(n);
         for (int i=0; i<n; i++) cin >> A[i];
         for (int i=0; i<n; i++) cin >> B[i];
 
-        vector<int> AmB(n), ApB(n);
+        vector<int> F(n), Fpos, Fneg;
         for (int i=0; i<n; i++) {
-            AmB[i] = A[i] - B[i];
-            ApB[i] = A[i] + B[i];
+            F[i] = A[i] - B[i];
+        }
+        
+        for (int i=0; i<n; i++) {
+            if (F[i] < 0) Fneg.push_back(-F[i]);
+            else Fpos.push_back(F[i]);
         }
 
-        sort(AmB.begin(), AmB.end());
-        sort(ApB.begin(), ApB.end());
+        sort(Fneg.begin(), Fneg.end());
+        sort(Fpos.begin(), Fpos.end());
 
-        for (int i=0; i<n; i++) {
-            int val = AB[i];
-            if (val < 0 && abs(val) > k) {
-                // find abs(val) - k
-                int pos = lower_bound(AB.begin() + i + 1, AB.end(), (abs(val) - k)) - AB.begin();
-            } else {
-                // find k - val
-                int pos = lower_bound();
+        for (auto e : Fneg)
+            cout << e << " "; cout << "\n";
+        for (auto e : Fpos)
+            cout << e << " "; cout << "\n";
+
+
+        int l = 0, r = 10, sz = Fneg.size();
+        // while (l < r) {
+        for (int md=0; md<=10; md++) {
+            // int md = (l + r + 1) >> 1;
+            // md = 0;
+
+            int cnt = 0;
+            for (int i=0; i<sz; i++) {
+                int val = Fneg[i];
+                // int be = lower_bound(Fpos.begin(), Fpos.end(), val - md) - Fpos.begin();
+                // int ab = lower_bound(Fpos.begin(), Fpos.end(), val + md + 1) - Fpos.begin() - 1;
+                // cout << val << ": " << ab << "->" << be << "\n";
+                for (int j=0; j<Fpos.size(); j++) {
+                    if (Fpos[j] >= val - md && Fpos[j] <= val + md) cnt++;
+                }
+                // cout << val << ": " << "_" << md << ": " << cnt << "\n";
             }
+
+            cout << md << ": " << cnt << "\n";// << cnt << "\n";
+
+
+            if (cnt >= k) r = md;
+            else l = md + 1;
+            // break;
         }
 
-        for (int i=0; i<n; i++) {
-            for (int j=i+1; j<n; j++) {
-                int xij = A[i] - A[j], yij = B[i] - B[j];
-                int zij = abs(xij - yij);
-                printf("[%d][%d]: - X: %d, Y: %d, Z: %d\n", i, j, xij, yij, zij);
-            }
-        }
-
-        // X[i][j] = A[i] - A[j], i < j
-        // Y[i][j] = B[i] - B[j], i < j
-        // Z[i][j] = |X[i][j] - Y[i][j]|
-
-        // Z[i][j] always equal or greater than 0
-        // 
-
+        cout << l << "\n";
     }
 
     return 0;
