@@ -62,9 +62,10 @@ int32_t main() {
         for (int l=0; l<n; l++) {
             int r = upper_bound(arr.begin() + l, arr.end(), arr[l] + k) - arr.begin() - 1;
             if (arr[r] - arr[l] > k) continue;
+            if (r - l < (m - 1)) continue;
 
             // cout << l << "-" << r << '\n';
-            // choose arr[l] to avoid repeating and m - 1 element in [l + 1, r]
+            // choose arr[l] to avoid repeating and m - 1 elements in [l + 1, r]
             ans += CnK(r - l, m - 1);
             ans %= MOD;
         }

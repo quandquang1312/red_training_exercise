@@ -15,17 +15,17 @@ int32_t main() {
     #endif
 
     int n; cin >> n;
-    vector<int> cows(n), stail(n);
+    vector<int> cows(n), stall(n);
 
     for (int i=0; i<n; i++) cin >> cows[i];
-    for (int i=0; i<n; i++) cin >> stail[i];
+    for (int i=0; i<n; i++) cin >> stall[i];
 
     sort(cows.rbegin(), cows.rend());
-    sort(stail.begin(), stail.end());
+    sort(stall.begin(), stall.end());
 
     int lst = n, ans = 1;
     for (int i=0; i<n; i++) {
-        int pos = lower_bound(stail.begin(), stail.end(), cows[i]) - stail.begin();
+        int pos = lower_bound(stall.begin(), stall.end(), cows[i]) - stall.begin();
         if (pos == n) {
             ans = 0;
             break;
