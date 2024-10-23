@@ -40,14 +40,6 @@ int32_t main() {
         for (int i=0; i<m; i++) cin >> arr[i];
         sort(arr.begin(), arr.end());
 
-        // vector<int> nge = findNGE(m, arr);
-        // reverse(arr.begin(), arr.end());
-        // vector<int> pge = findNGE(m, arr);
-
-        // while (q--) {
-        //     int x;
-        // }
-
         while (q--) {
             int x; cin >> x;
 
