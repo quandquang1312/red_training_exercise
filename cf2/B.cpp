@@ -18,7 +18,7 @@ void print_with_dash(const std::string& names, T value, Args... args) {
     print_with_dash(names.substr(pos + 1), args...);
 }
 
-class SegmentTree {
+class SegmentTree { // 0-based segment tree with lazy
 public:
     vector<int> tree, lazy;
     int n;
