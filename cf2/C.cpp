@@ -1,10 +1,10 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#define int long long
+#define ll long long
 
-const int INF = 1e13;
-const int MOD = 1e9 + 7;
+const ll MOD = 444'449;
+const int MAXN = 100010;
 
 #define LOG(...) print_with_dash(#__VA_ARGS__, __VA_ARGS__)
 
@@ -20,81 +20,45 @@ void print_with_dash(const std::string& names, T value, Args... args) {
     print_with_dash(names.substr(pos + 1), args...);
 }
 
-vector<int> A, L, R, dp, height;
-int n, v;
+int f[MAXN];
 
-int RangeSum(int k) {
-    return (k * (k + 1)) / 2;
-}
+ll binpow(ll a, ll b) {
+    if (a == 0) return 0;
+    if (b == 1) return a;
 
-int smFrom1(int l, int r) {
-    int sm = 0;
-    for (int i=l; i<r; i++) sm += RangeSum(i);
-
-    return sm;
-}
-int max_height = 0;
-
-int dfs(int u, int sd, int pl, int pr) {
-    if (u == 0) return 0;
-    if (pl > pr) return 0;
-    if (pl <= 0 || pr <= 0) return 0;
-    if (pr > v || pr > v) return 0;
-    if (pl < height[u]) return 0;
-    if (pr > height[u]) return 0;
-
-    if (u == 1) { // root
-        // LOG()
-        int l = height[u] + 1, r = (v - height[u]);
-        // LOG(v, height[u], l, r);
-        if (A[u] == 0) {
-            if (l > r) return 0;
-            dp[u] = r - l + 1;
-            dfs(L[u], 0, l, r); // left
-            dfs(R[u], 1, l, r); // right
-        } else {
-            dp[u] = 1;
-            dfs(L[u], 0, A[u], A[u]); // left
-            dfs(R[u], 1, A[u], A[u]); // right
-        }
-    } else {
-        if (sd == 0) {
-            if (A[u] == 0) {
-                dp[u] = smFrom1(pl, pr);
-                dfs(L[u], 0, height[u], max(pr - 1); // left
-                dfs(R[u], 1, 1, min(v - height[u], (pr - 1))); // right
-            } else {
-                dp[u] = 1;
-                dfs(L[u], 0, A[u], A[u]); // left
-                dfs(R[u], 1, A[u], A[u]); // right
-            }
-        } else {
-            if (A[u] == 0) {
-                dp[u] = smFrom1(pl, pr);
-                dfs(L[u], 0, pr, v); // left
-                dfs(R[u], 1, pr, v); // right
-            } else {
-                dp[u] = 1;
-                dfs(L[u], 0, A[u], A[u]); // left
-                dfs(R[u], 1, A[u], A[u]); // right
-            }
-        }
+    ll res = 1;
+    while (b) {
+        if (b & 1) res = (res * a) % MOD;
+        a = a * a % MOD;
+        b >>= 1;
     }
 
-    return dp[u];
+    return res;
 }
 
+int inv(int n) {
+    return binpow(n, MOD - 2LL);
+}
 
-int getHeight(int u) {
-    if (u == 0) return 0;
-    int ans = 1;
-    int height_left  = getHeight(L[u]);
-    int height_right = getHeight(R[u]);
+void precalF() {
+    f[0] = f[1] = 1;
+    for (int i=2; i<MAXN; i++) f[i] = (f[i - 1] * i) % MOD;
+}
 
-    height[u] = ans + max(height_left, height_right);
-    max_height = max(max_height, height[u]);
+int CnK(int n, int k) {
+    if (n == k) return 1LL;
+    if (n < k) return 0LL;
 
-    return height[u];
+    return ((f[n] * inv(f[k]) % MOD) * (inv(f[n-k])) % MOD) % MOD;
+}
+
+vector<int> A, L, R, odr;
+int n, v;
+
+void dfs(int u) {
+    if (L[u] != 0) dfs(L[u]);
+    odr.push_back(u);
+    if (R[u] != 0) dfs(R[u]);
 }
 
 int32_t main() {
@@ -106,6 +70,8 @@ int32_t main() {
         freopen("ou.txt", "w", stdout);
     #endif
 
+    precalF();
+
     int tc; cin >> tc;
     while (tc--) {
         cin >> n >> v;
@@ -113,27 +79,32 @@ int32_t main() {
         A.assign(n + 1, 0);
         L.assign(n + 1, 0);
         R.assign(n + 1, 0);
-        dp.assign(n + 1, 0);
-        height.assign(n + 1, 0);
+        odr.clear();
        
         for (int i=1; i<=n; i++) cin >> A[i];
-
         for (int i=1; i<=n; i++) cin >> L[i];
         for (int i=1; i<=n; i++) cin >> R[i];
 
-        getHeight(1);
+        dfs(1);
 
+        vector<pair<int, int>> fixed;
 
-        for (int i=1; i<=n; i++) {
-            height[i] -= 1;
-            LOG(height[i]);
+        fixed.push_back({0, -1});
+        for (int i=0; i<n; i++) {
+            int pos = A[odr[i]];
+            if (pos != 0) fixed.push_back({pos, i});
+        }
+        fixed.push_back({v + 1, n});
+
+        int ans = 1LL;
+        for (int i=1; i<fixed.size(); i++) {
+            auto [pos1, odr1] = fixed[i];
+            auto [pos2, odr2] = fixed[i-1];
+            
+            ans = (ans * CnK(pos1 - pos2 - 1, odr1 - odr2 - 1)) % MOD; 
         }
 
-        dfs(1, 0, 1, 1);
-        // LOG(height);
-        for (int i=1; i<=n; i++) {
-            LOG(i, dp[i]);
-        }
+        cout << ans << "\n";
     }
 
     return 0;
