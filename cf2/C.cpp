@@ -1,32 +1,15 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#define ll long long
+#define int long long
 
-const ll MOD = 444'449;
-const int MAXN = 100010;
+const int MOD = 444'449;
 
-#define LOG(...) print_with_dash(#__VA_ARGS__, __VA_ARGS__)
-
-template<typename T>
-void print_with_dash(const std::string& names, T value) {
-    std::cout << names << ": " << value << std::endl;
-}
-
-template<typename T, typename... Args>
-void print_with_dash(const std::string& names, T value, Args... args) {
-    size_t pos = names.find(',');
-    std::cout << names.substr(0, pos) << ": " << value << " - ";
-    print_with_dash(names.substr(pos + 1), args...);
-}
-
-int f[MAXN];
-
-ll binpow(ll a, ll b) {
+int binpow(int a, int b) {
     if (a == 0) return 0;
     if (b == 1) return a;
 
-    ll res = 1;
+    int res = 1;
     while (b) {
         if (b & 1) res = (res * a) % MOD;
         a = a * a % MOD;
@@ -36,29 +19,28 @@ ll binpow(ll a, ll b) {
     return res;
 }
 
-int inv(int n) {
-    return binpow(n, MOD - 2LL);
-}
-
-void precalF() {
-    f[0] = f[1] = 1;
-    for (int i=2; i<MAXN; i++) f[i] = (f[i - 1] * i) % MOD;
-}
-
 int CnK(int n, int k) {
-    if (n == k) return 1LL;
-    if (n < k) return 0LL;
+    if (k > n) return 0LL;
+    if (k == n) return 1LL;
 
-    return ((f[n] * inv(f[k]) % MOD) * (inv(f[n-k])) % MOD) % MOD;
+    k = min(k, n - k);
+
+    int numerator = 1, denominator = 1;
+    for (int i=0; i<k; i++) {
+        numerator = (numerator * (n - i) % MOD) % MOD;
+        denominator = (denominator * (i + 1) % MOD) % MOD;
+    }
+
+    int denominator_inv = binpow(denominator, MOD - 2);
+    return (numerator * denominator_inv) % MOD;
 }
 
-vector<int> A, L, R, odr;
-int n, v;
+vector<int> odr;
 
-void dfs(int u) {
-    if (L[u] != 0) dfs(L[u]);
+void dfs(int u, vector<int>& L, vector<int>& R) {
+    if (L[u] != -1) dfs(L[u], L, R);
     odr.push_back(u);
-    if (R[u] != 0) dfs(R[u]);
+    if (R[u] != -1) dfs(R[u], L, R);
 }
 
 int32_t main() {
@@ -70,22 +52,30 @@ int32_t main() {
         freopen("ou.txt", "w", stdout);
     #endif
 
-    precalF();
-
     int tc; cin >> tc;
     while (tc--) {
-        cin >> n >> v;
+        int n, v; cin >> n >> v;
 
-        A.assign(n + 1, 0);
-        L.assign(n + 1, 0);
-        R.assign(n + 1, 0);
+        vector<int> A(n), L(n), R(n);
+
         odr.clear();
-       
-        for (int i=1; i<=n; i++) cin >> A[i];
-        for (int i=1; i<=n; i++) cin >> L[i];
-        for (int i=1; i<=n; i++) cin >> R[i];
 
-        dfs(1);
+        for (int i=0; i<n; i++) cin >> A[i];
+        for (int i=0; i<n; i++) cin >> L[i], L[i]--;
+        for (int i=0; i<n; i++) cin >> R[i], R[i]--;
+
+        int rt = 0;
+        vector<int> anc(n, -1);
+        for (int i=0; i<n; i++) {
+            if (L[i] != -1) anc[L[i]] = i;
+            if (R[i] != -1) anc[R[i]] = i; 
+        }
+
+        for (int i=0; i<n; i++) {
+            if (anc[i] == -1) rt = i;
+        }
+
+        dfs(rt, L, R);
 
         vector<pair<int, int>> fixed;
 
@@ -101,7 +91,7 @@ int32_t main() {
             auto [pos1, odr1] = fixed[i];
             auto [pos2, odr2] = fixed[i-1];
             
-            ans = (ans * CnK(pos1 - pos2 - 1, odr1 - odr2 - 1)) % MOD; 
+            ans = (ans * CnK((pos1 - pos2 - 1) % MOD, (odr1 - odr2 - 1) % MOD)) % MOD; 
         }
 
         cout << ans << "\n";
