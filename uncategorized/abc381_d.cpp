@@ -16,42 +16,42 @@ int main() {
     for (auto &e : arr) cin >> e;
     
     int ans = 0;
-    
-    int lst = -1, cur = 0, chain = 0;
-    set<int> appear;
+    int j;
 
-    bool donetwo = true;
-    for (int i=0; i<n; i++) {
-        if (donetwo) {
-            if (find(appear.begin(), appear.end(), arr[i]) != appear.end()) {
-                ans = max(ans, chain);
-                appear.clear();
-                chain = 0;
-                cur = 1;
-            } else {
-                lst = arr[i];
-                cur = 1;
-                donetwo = false;
-                appear.insert(lst);
-            }
-        } else {
-            if (arr[i] != lst) {
-                ans = max(ans, chain);
-                chain = 0;
-                lst = arr[i];
-                appear.clear();
-                appear.insert(lst);
-                cur = 1;
-            } else {
-                cur++;
-                if (cur == 2) {
-                    chain++;
-                    donetwo = true;
-                    ans = max(ans, chain);
+    map<int, int> mp;
+
+    for (int i=0; i<n; i=j) {
+        int cnt = 1, cur = 0, lastE = arr[i];
+        set<int> st;
+        st.insert(arr[i]);
+        j = i + 1;
+        mp[arr[i]] = i;
+        for (; j<n; j++) {
+            if (cnt % 2 == 1) {
+                if (arr[j] == lastE) {
+                    cur++;
+                    ans = max(ans, cur);
                 }
+                else {
+                    mp[arr[j]] = j;
+                    break;
+                }
+            } else {
+                if (st.find(arr[j]) != st.end()) {
+                    ans = max(ans, cur);
+                    j = mp[arr[j]] + 1;
+                    break;
+                } else {
+                    st.insert(arr[j]);
+                    lastE = arr[j];
+                }
+                mp[arr[j]] = j;
             }
+            cnt++;
         }
     }
 
-    cout << ans * 2 << endl;
+    cout << ans * 2 << "\n";
+
+    return 0;
 }
