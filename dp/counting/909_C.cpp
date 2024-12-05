@@ -31,7 +31,7 @@ int32_t main() {
         if (s[i-1] == 's') {
             vector<int> cnt_lvl;
             int sm_lvl = 0;
-            for (int j=0; j<n; j++) {
+            for (int j=0; j<i; j++) {
                 if (dp[i-1][j] != 0) {
                     cnt_lvl.push_back(dp[i-1][j]);
                     sm_lvl += dp[i-1][j];
@@ -48,11 +48,6 @@ int32_t main() {
                 }
             }
         } else { // 'f'
-            vector<int> cnt_lvl;
-            for (int j=0; j<n; j++) {
-                if (dp[i-1][j] != 0) cnt_lvl.push_back(dp[i-1][j]);
-            }
-
             for (int j=1; j<n; j++) {
                 dp[i][j] += dp[i-1][j-1];
                 dp[i][j] %= MOD;
