@@ -1,10 +1,10 @@
-// https://codeforces.com/problemset/problem/1526/C2
+// https://codeforces.com/problemset/problem/1526/C1
 
 #include <bits/stdc++.h>
 using namespace std;
 
 #define int long long
-#define INF -1e18
+#define INF 1e18
 
 int32_t main() {
     ios_base::sync_with_stdio(false);
@@ -17,25 +17,31 @@ int32_t main() {
 
     int n; cin >> n;
     vector<int> arr(n);
+    priority_queue<int, vector<int>, greater<int>> pq;
 
+    for (int i=0; i<n; i++) cin >> arr[i];
+
+    int sm = 0, ans = 0;
     for (int i=0; i<n; i++) {
-        cin >> arr[i];
+        if (sm + arr[i] >= 0) {
+            // cout << sm << " + " << arr[i] << "==" << sm + arr[i] << "\n";
+            pq.push(arr[i]);
+            sm += arr[i];
+            ans += 1;
+        } else {
+            if (pq.empty()) continue;
+            if (pq.top() < arr[i]) {
+                // cout << "pq.top() " << pq.top() << " < " << arr[i] << "\n";
+                sm -= pq.top();
+                pq.pop();
+
+                pq.push(arr[i]);
+                sm += arr[i];
+            }
+        }
     }
 
-    vector<vector<pair<int, int>>> dp(n + 1, vector<pair<int, int>>(2, {0, 0}));
-
-    // not choose
-    dp[0][0] = {0, 0};
-
-    // choose
-    if (arr[0] >= 0) {
-        dp[0][1] = {arr[0], 1};
-    }
-
-    for (int i=1; i<n; i++) {
-
-    } 
-
+    cout << ans << "\n";
 
     return 0;
 }
