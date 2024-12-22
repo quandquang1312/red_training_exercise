@@ -1,5 +1,8 @@
 // https://leetcode.com/problems/non-overlapping-intervals/?envType=problem-list-v2&envId=dynamic-programming
 
+#include <bits/stdc++.h>
+using namespace std;
+
 class Solution {
 public:
     int n;
