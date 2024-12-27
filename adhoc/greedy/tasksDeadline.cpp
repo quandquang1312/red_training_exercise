@@ -18,9 +18,7 @@ int32_t main() {
     vector<pair<int, int>> arr(n);
     for (int i=0; i<n; i++) cin >> arr[i].first >> arr[i].second;
  
-    sort(arr.begin(), arr.end(), [](pair<int, int> p1, pair<int, int> p2) {
-        return p1.first < p2.first;
-    });
+    sort(arr.begin(), arr.end());
 
     int max_ans = 0, cur = 0;
     for (int i=0; i<n; i++) {
