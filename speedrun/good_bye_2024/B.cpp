@@ -32,12 +32,12 @@ int32_t main() {
 
         for (int i=0; i<=2*n; i++) {
             prefix[i+1] += prefix[i];
-            prefix_marked[i+1] = prefix_marked[i] + marked[i] == 0;
+            prefix_marked[i+1] = prefix_marked[i] + (marked[i+1] == 0);
         }
 
-        for (int i=0; i<=2*n; i++) {
-            cout << i << ": " << marked[i] << " - " << prefix[i] << "\n";
-        }
+        // for (int i=0; i<=2*n; i++) {
+        //     cout << i << ": " << marked[i] << " - "g << prefix_marked[i] << "\n";
+        // }
 
         for (int i=0; i<n; i++) {
             auto [l, r] = arr[i];
