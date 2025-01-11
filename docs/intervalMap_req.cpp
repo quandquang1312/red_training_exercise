@@ -56,7 +56,6 @@ iterators. It is illegal to dereference end iterators. Consider using a checking
 
 template<class K, class V>
 class interval_map {
-    friend void IntervalMapTest();
 
 private:
     std::map<K,V> m_map;
