@@ -4,22 +4,15 @@ using namespace std;
 vector<vector<int>> ans;
 int n, m;
 
-void solve(int idx, int lstVal, vector<int>& cur) {
-    if (lstVal > m) return;
-
-    if (idx >= n) {
+void solve(int idx, int val, vector<int>& cur) {
+    if (idx > n) {
         ans.push_back(cur);
         return;
     }
 
-    if (n - idx - 1 != 0) {
-        int diff = ((m - (lstVal + 10)) / (n - idx - 1));
-        if (diff < 10) return;
-    }
-
-    for (int i=lstVal + 10; i <= m; i++) {
+    for (int i=val; i<=(m - 10 * (n - idx)); i++) {
         cur.push_back(i);
-        solve(idx + 1, i, cur);
+        solve(idx + 1, i + 10, cur);
         cur.pop_back();
     }
 }
@@ -35,7 +28,7 @@ int32_t main() {
 
     cin >> n >> m;
     vector<int> cur;
-    solve(0, 1-10, cur);
+    solve(1, 1, cur);
 
     cout << ans.size() << "\n";
     for (auto &v : ans) {
