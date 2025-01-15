@@ -6,7 +6,7 @@ using namespace std;
 #define int long long
 
 int maxDepth = 0;
-vector<int> depth, maxChildDepth;
+vector<int> depth, maxChildDepth, diff;
 
 void dfs(int u, int p, vector<vector<int>>& adj) {
     depth[u] = depth[p] + 1;
@@ -19,6 +19,22 @@ void dfs(int u, int p, vector<vector<int>>& adj) {
         dfs(v, u, adj);
         maxChildDepth[u] = max(maxChildDepth[u], maxChildDepth[v]);
     }
+}
+
+void update(int l, int r, int vl) {
+    diff[l] += vl;
+    diff[r + 1] -= vl;
+}
+
+int apply_update(int n)
+{
+    int mmin = 1e18;
+    for (int i=1; i<=maxDepth; i++) {
+        diff[i] += diff[i-1];
+        mmin = min(mmin, n - diff[i]);
+    }
+
+    return mmin;
 }
 
 int32_t main() {
@@ -36,6 +52,7 @@ int32_t main() {
 
         depth.assign(n + 1, -1);
         maxChildDepth.assign(n + 1, -1);
+        diff.assign(n + 1, 0);
         maxDepth = 1;
 
         depth[0] = 0;
@@ -49,28 +66,11 @@ int32_t main() {
 
         dfs(1, 0, adj);
 
-        // for (int i=1; i<=n; i++) {
-        //     cout << i << ": " << depth[i] << " - " << maxChildDepth[i] << "\n";
-        // }
-        /*
-        d tang : number of depth[u] <= d _ tang
-        d tang : number of maxChildDepth[u] >= d _ giam 
-        */
-
-        int ans = 1e18;
-        for (int d=1; d<=maxDepth; d++) {
-            
-            int cnt = 0;
-            for (int u=1; u<=n; u++) {
-                if (depth[u] <= d && maxChildDepth[u] >= d) {
-                    cnt++;
-                }
-            }
-
-            cout << d << ": " << cnt << "\n";
-
-            ans = min(ans, n - cnt);
+        for (int u=1; u<=n; u++) {
+            update(depth[u], maxChildDepth[u], 1);
         }
+
+        int ans = apply_update(n);
 
         cout << ans << "\n";
     }
