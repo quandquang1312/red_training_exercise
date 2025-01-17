@@ -1,3 +1,5 @@
+// https://atcoder.jp/contests/abc388/tasks/abc388_d
+
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -14,26 +16,31 @@ int32_t main() {
 
     int n; cin >> n;
 
-    vector<int> arr(n);
+    vector<int> arr(n + 1);
+    vector<int> diff(n + 5, 0);
 
-    for (int i=0; i<n; i++) cin >> arr[i];
+    for (int i=1; i<=n; i++) cin >> arr[i];
 
-    sort(arr.begin(), arr.end());
+    for (int i=1; i<=n; i++) {
+        // Apply update different array at i
+        diff[i] += diff[i - 1];
+        arr[i] += diff[i];
 
-    int ans = 0;
-    int l = 0, r = n / 2;
+        // Calculate the number of stones will be used
+        int stones = arr[i];
+        int stones_use = min(stones, n - i);
 
-    while (l < n / 2 && r < n) {
-        if (arr[r] >= arr[l] * 2) {
-            l++;
-            r++;
-            ans++;
-        } else {
-            r++;
-        }
+        // Update different array
+        diff[i + 1] += 1;
+        diff[i + stones_use + 1] -= 1;
+
+        // Subtract the number of stones will be used
+        arr[i] -= stones_use;
+        cout << arr[i] << " ";
     }
 
-    cout << ans << "\n";
+    cout << "\n";
+
 
     return 0;
 }
