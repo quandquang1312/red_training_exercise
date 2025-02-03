@@ -23,19 +23,15 @@ int32_t main() {
         for (int y=1; y<=n; y++) {
             if (x == y) continue;
             string str;
-            for (int i=0; i<q; i++) {
-                if (queries[i].first == x && queries[i].second == '+')
-                    str.push_back('+');
-                if (queries[i].first == y && queries[i].second == '-')
-                    str.push_back('-');
-            }
-
             int cur_m = 0;
-            for (int j=0; j<str.size(); j++) {
-                if (str[j] == '-') cur_m++;
-                else {
+            for (int i=0; i<q; i++) {
+                if (queries[i].first == x && queries[i].second == '+') {
                     if (cur_m) cur_m--;
                     else dist[x][y]++;
+                }
+
+                if (queries[i].first == y && queries[i].second == '-') {
+                    cur_m++;
                 }
             }
 
