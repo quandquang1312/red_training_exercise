@@ -41,7 +41,10 @@ int32_t main() {
 
             A[u] = min(arr[u].second, mx);
 
-            for (auto &v : adj[u]) ans += max(0LL, A[v] - A[u]);
+            for (auto &v : adj[u]) {
+                if (A[v] > A[u])
+                    ans += A[v] - A[u];
+            }
         };
 
         dfs(1, 0);
