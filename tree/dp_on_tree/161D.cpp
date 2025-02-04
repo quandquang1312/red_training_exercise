@@ -20,43 +20,31 @@ int32_t main() {
         adj[v].push_back(u);
     }
 
-    vector<int> dp(n + 1, 0);
-    int ans = 0;
-    function<int(int, int)> dfs = [&] (int u, int p) -> int {
-        dp[u] = 0;
+    vector<vector<int>> dp(n + 1, vector<int>(k + 1, 0));
 
-        set<int> nodes;
+    int ans = 0;
+
+    function<void(int, int)> dfs = [&] (int u, int p) -> void {
+        dp[u][0] = 1;
         for (auto &v : adj[u]) {
             if (v == p) continue;
-            dp[u]++;
-            int nodes_v = dfs(v, u);
-            if (nodes_v >= k - 1) ans++;
+            dfs(v, u);
 
-            auto it = nodes.lower_bound(k - nodes_v);
-
-            nodes.insert(nodes_v);
-        }
-
-        if (nodes.empty()) return dp[u];
-
-        auto e = nodes.begin();
-        while (e != nodes.end()) {
-            int v = *e;
-            if (v >= k) ans += v * std::distance(e, nodes.end());
-            else {
-                auto it = nodes.lower_bound(k - v);
-                ans += std::distance(it, nodes.end());
+            // all the previous child node copare to v
+            for (int i=1; i<=k; i++) {
+                ans += dp[u][i-1] * dp[v][k-i];
             }
-            e++;
-        }
 
-        return dp[u];
+            // update result of v to u
+            for (int i=1; i<=k; i++) {
+                dp[u][i] += dp[v][i-1];
+            }
+        }
     };
 
     dfs(1, 0);
 
     cout << ans << "\n";
-
 
     return 0;
 }
