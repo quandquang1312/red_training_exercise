@@ -3,43 +3,49 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#define INF 1e9
+#define int long long
+const int INF = 3e18;
 
-int32_t main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(nullptr); cout.tie(nullptr);
-
-    #ifdef LOCAL
-        freopen("in.txt", "r", stdin);
-        freopen("ou.txt", "w", stdout);
-    #endif
-
+int32_t main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    
     int tc; cin >> tc;
     while (tc--) {
         int n; cin >> n;
-        int arr[n] {};
+        vector<int> arr(n + 1);
+        for (int i=1; i<=n; i++) cin >> arr[i];
 
-        for (int i=0; i<n; i++) cin >> arr[i];
+        vector<vector<int>> dp(n + 1, vector<int>(n + 1, INF));
+        dp[0][0] = 0;
 
-        vector<int> a, b;
-        b.push_back(arr[0]);
-        a.push_back(INF);
-        for (int i=1; i<n; i++) {
-            if (a.back() > b.back()) swap(a,b);
+        /*
+            dp[i][j]: minimum penalty where
+                - the last element of s1 is i
+                - the last element of s2 is j
+        */
 
-            if (a.back() == arr[i]) a.push_back(arr[i]);
-            else if (b.back() == arr[i]) b.push_back(arr[i]);
-            else if (a.back() > arr[i] && arr[i] > b.back())
-                a.push_back(arr[i]);
-            else // arr[i] > a.back() && arr[i] > b.back()
-                b.push_back(arr[i]);
+        for (int i=0; i<=n; i++) {
+            for (int j=0; j<=n; j++) {
+                if (dp[i][j] == INF || (max(i, j) + 1 > n)) continue;
+                int idx = max(i, j) + 1;
+
+                // add idx to s1
+                int cost1 = (i && (arr[i] < arr[idx]));
+                dp[idx][j] = min(dp[idx][j], dp[i][j] + cost1);
+
+                // add idx to 2
+                int cost2 = (j && (arr[j] < arr[idx]));
+                dp[i][idx] = min(dp[i][idx], dp[i][j] + cost2);
+            }
         }
 
-        int ans = 0;
-        for (size_t i=1; i<a.size(); i++)  ans += (a[i-1] < a[i]);
-        for (size_t i=1; i<b.size(); i++)  ans += (b[i-1] < b[i]);
+        int ans = INF;
+        for (int i=0; i<=n; i++) {
+            ans = min(ans, dp[n][i]);
+        }
 
-        cout << ans << endl;
+        cout << ans << "\n";
     }
 
     return 0;
