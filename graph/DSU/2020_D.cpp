@@ -3,37 +3,49 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#define int long long
-
-class UnionFind {
+class DSU {
 private:
     vector<int> p, rank, setSize;
     int numSets;
 
 public:
-    UnionFind(int N)
-    {
-        p.assign(N, 0);
-        for (int i = 0; i < N; ++i)
-            p[i] = i;
-        rank.assign(N, 0);
-        setSize.assign(N, 1);
-        numSets = N;
+    DSU(int n) {
+        p.assign(n, 0);
+        for (int i=0; i<n; i++) p[i] = i;
+
+        rank.assign(n, 0);
+        setSize.assign(n, 1);
+        numSets = n;
     }
-    int findSet(int i) { return (p[i] == i) ? i : (p[i] = findSet(p[i])); }
-    bool isSameSet(int i, int j) { return findSet(i) == findSet(j); }
-    int numDisjointSets() { return numSets; }
-    int sizeOfSet(int i) { return setSize[findSet(i)]; }
-    void unionSet(int i, int j)
-    {
-        if (isSameSet(i, j))
-            return;
-        int x = findSet(i), y = findSet(j);
-        if (rank[x] > rank[y])
-            swap(x, y);
+
+    int findSet(int i) {
+        if (p[i] == i) return i;
+        return p[i] = findSet(p[i]);
+    }
+
+    bool isSameSet(int i, int j) {
+        return findSet(i) == findSet(j);
+    }
+
+    int sizeOfSet(int i) {
+        return setSize[findSet(i)];
+    }
+
+    int numOfSets() {
+        return numSets;
+    }
+
+    void unionSet(int i, int j) {
+        if (isSameSet(i, j)) return;
+
+        int x = findSet(i);
+        int y = findSet(j);
+
+        if (rank[x] > rank[y]) swap(x, y);
+
         p[x] = y;
-        if (rank[x] == rank[y])
-            ++rank[y];
+        if (rank[x] == rank[y]) rank[y]++;
+
         setSize[y] += setSize[x];
         --numSets;
     }
@@ -43,47 +55,34 @@ int32_t main() {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr); cout.tie(nullptr);
 
-    #ifdef LOCAL
-        freopen("../in.txt", "r", stdin);
-        freopen("../ou.txt", "w", stdout);
-    #endif
-
     int tc; cin >> tc;
     while (tc--) {
         int n, m; cin >> n >> m;
 
-        vector<vector<int>> dp(n + 1, vector<int>(12));
+        vector<vector<int>> dp(n + 1, vector<int>(10 + 1, 0));
         for (int i=0, a, d, k; i<m; i++) {
             cin >> a >> d >> k;
 
-            // different array with the second parameter is d
             dp[a][d]++;
             dp[a + d * k][d]--;
         }
 
-        UnionFind UF(n + 1);
-        // find for each points does it connect to any node
-        // via the gaps of d
+
+        DSU dsu(n + 1);
+
         for (int i=1; i<=n; i++) {
-            for (int j=1; j<=10; j++) {
-                // check if i connect to some nodes before it
-                // via the gap of j
-                if (i > j) dp[i][j] += dp[i-j][j];
-                
-                // if it is connect
-                if (dp[i][j] > 0) {
-                    UF.unionSet(i, i+j);
+            for (int d=1; d<=10; d++) {
+                if (i < d) continue;
+
+                if (dp[i - d][d] > 0) {
+                    dp[i][d] += dp[i - d][d];
+                    dsu.unionSet(i - d, i);
                 }
             }
         }
 
-        int ans = 0;
-        for (int i=1; i<=n; i++) {
-            int p = UF.findSet(i);
-            if (p == i) ans++;
-        }
-
-        cout << ans << "\n";
+        int ans = dsu.numOfSets() - 1;
+        cout << ans << "\n"; 
     }
 
     return 0;
