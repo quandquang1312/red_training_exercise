@@ -14,30 +14,48 @@ int32_t main() {
 
     vector<vector<pair<int, int>>> arr(4);
 
+    vector<int> mx_vit(4, 0);
     for (int i=0, v, x, c; i<n; i++) {
         cin >> v >> x >> c;
-        arr[v].push_back({x, c}); 
+        arr[v].push_back({x, c});
+        mx_vit[v] += x;
     }
 
-    // run dynamic programming to calculate the minimum calories to get X units of vitamin V
-    vector<vector<int>> dp(3, vector<int>(x + 1, INF));
+    int mx = *min_element(mx_vit.begin() + 1, mx_vit.end());
+
+    // dp[i][j]: the maximum vitamin i to get when we spend j calories
+    vector<vector<int>> dp(4, vector<int>(x + 1, 0));
 
     for (int v=1; v<=3; v++) {
         int sz = arr[v].size();
 
         dp[v][0] = 0;
 
-        for (int i=x; i>=1; i--) {
-            for (int j=0; j<sz; j++) {
-                
-                if (dp[v][i] == INF) continue;
-                int idx = i + arr[v][j].first;
-                if (idx <= x) dp[v][idx] = min(dp[v][idx], dp[v][i] + arr[v][j].second); 
+        for (int j=0; j<sz; j++) {
+            int calories = arr[v][j].second;
+            int vitamins = arr[v][j].first;
+
+            for (int i=x; i>=calories; i--) {
+                dp[v][i] = max(dp[v][i], dp[v][i - calories] + vitamins); 
             }
         }
     }
 
-    // run binary search to calculate the maximum minimum of all three vitamin
+    auto min_calories = [&] (int b, const vector<int>& vit) -> int {
+        int pos = lower_bound(vit.begin(), vit.end(), b) - vit.begin();
+        return pos;
+    };
+
+    int lo = 0, hi = mx;
+    while (lo < hi) {
+        int mid = (lo + hi + 1) / 2;
+        int total = min_calories(mid, dp[1]) + min_calories(mid, dp[2]) + min_calories(mid, dp[3]);
+
+        if (total <= x) lo = mid;
+        else hi = mid - 1;
+    }
+
+    cout << lo << "\n";
 
     return 0;
 }
