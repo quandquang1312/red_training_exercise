@@ -51,13 +51,13 @@ int32_t main() {
             for (int i=total; i>=0; i--) {
                 for (int j=0; j<=sz[v]; j++) {
                     // going others first, going back -> go to v, not going back
-                    dp[u][i + j][0] = min(dp[u][i + j][0], dp[u][i][1] + dp[v][j][0] + w);
+                    dp[u][i + j][0] = min(dp[u][i + j][0], dp[u][i][1] + (dp[v][j][0] + w));
 
                     // going to v first, going back -> going to others, not going back
-                    dp[u][i + j][0] = min(dp[u][i + j][0], dp[u][i][0] + dp[v][j][1] + 2 * w);
+                    dp[u][i + j][0] = min(dp[u][i + j][0], (dp[v][j][1] + 2 * w) + dp[u][i][0]);
 
                     // going to v and others, and go back
-                    dp[u][i + j][1] = min(dp[u][i + j][1], dp[u][i][1] + dp[v][j][1] + 2 * w);
+                    dp[u][i + j][1] = min(dp[u][i + j][1], dp[u][i][1] + (dp[v][j][1] + 2 * w));
                 }
             }
 
