@@ -1,12 +1,13 @@
-// https://cses.fi/problemset/task/1695
+// https://cses.fi/problemset/task/1709
 
 #include <bits/stdc++.h>
 using namespace std;
 
 #define int long long
+const int INF = 1e18;
 
 struct Edge {
-    int to, rev, cap;
+   int to, rev, cap;
 };
 
 class Dinic {
@@ -80,47 +81,50 @@ int32_t main() {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr); cout.tie(nullptr);
 
-    int n, m; cin >> n >> m;
+    int n; cin >> n;
 
-    Dinic dinic(n + 1);
+    Dinic dinic(2 * n + 2);
 
-    vector<pair<int, int>> edges(m);
+    int source = 0, sink = 2 * n + 1;
 
-    for (int i=0, u, v; i<m; i++) {
-        cin >> u >> v;
-
-        edges[i] = {u, v};
-        dinic.addEdge(u, v, 1);
-        dinic.addEdge(v, u, 1);
+    // Edges from source to rows (1...N)
+    for (int u=1; u<=n; u++) {
+        dinic.addEdge(source, u, 1);
     }
 
-    dinic.maxFlow(1, n);
+    // Edges from cols (N+1...N+N) to sink
+    for (int u=n+1; u<=n+n; u++) {
+        dinic.addEdge(u, sink, 1);
+    }
+
+    char x;
+    for (int i=1; i<=n; i++) {
+        for (int j=1; j<=n; j++) {
+            cin >> x;
+            if (x == 'o') dinic.addEdge(i, j + n, 1);
+        }
+    }
+
+    dinic.maxFlow(source, sink);
 
     // Minimum Cut
-    vector<bool> visited(n + 1, false);
-
-    function<void(int)> dfs = [&] (int s) -> void {
-        visited[s] = true;
-
-        auto &neightbor = dinic.adj[s];
-
-        for (auto &[to, rev, cap] : neightbor) {
-            if (!visited[to] && cap > 0)
-                dfs(to);
-        }
-    };
-
-    dfs(1);
-
     vector<pair<int, int>> ans;
-    for (auto &[u, v] : edges) {
-        if (visited[u] ^ visited[v]) ans.push_back({u, v});
+
+    dinic.bfs(source, sink);
+
+    for (int i=1; i<=n; i++) {
+        if (dinic.level[i] < 0) ans.push_back({1, i});
+    }
+
+    for (int j=n+1; j<=n+n; j++) {
+        if (dinic.level[j] >= 0) ans.push_back({2, j - n});
     }
 
     cout << ans.size() << "\n";
-    for (auto &[u, v] : ans) {
-        cout << u << " " << v << "\n";
+    for (auto &[tp, idx] : ans) {
+        cout << tp << " " << idx << "\n";
     }
+
 
     return 0;
 }
