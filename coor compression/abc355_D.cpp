@@ -39,7 +39,7 @@ public:
         return query(BIT1, index) * index - query(BIT2, index);
     }
 
-    long long rangeQuery(int left, int right) {
+    long long query(int left, int right) {
         return prefixSum(right) - prefixSum(left - 1);
     }
 };
@@ -82,7 +82,7 @@ int32_t main() {
 
     int ans = 0LL;
     for (int i=0; i<arr.size(); i++) {
-        ans += ft.rangeQuery(coor[arr[i].second], coor[arr[i].second]) - 1;
+        ans += ft.query(coor[arr[i].second], coor[arr[i].second]) - 1;
         ft.rangeUpdate(coor[arr[i].first], coor[arr[i].second], -1);
     }
 

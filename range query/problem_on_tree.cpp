@@ -5,88 +5,42 @@ using namespace std;
 
 #define int long long
 
-class SegmentTree { // 0-based index segment tree with lazy update
+class FenwickTree {
 private:
+    std::vector<long long> BIT1, BIT2;
     int n;
-    vector<int> tree, lazy, arr;
-
-    void build(int node, int tl, int tr) {
-        if (tl == tr) tree[node] = arr[tl];
-        else {
-            int tm = (tl + tr) >> 1;
-            build(node*2+1, tl, tm);
-            build(node*2+2, tm+1, tr);
-            tree[node] = merge(tree[node*2+1], tree[node*2+2]);
+    void update(std::vector<long long>& BIT, int index, long long value) {
+        while (index < n) {
+            BIT[index] += value;
+            index = index | (index + 1);
         }
     }
-
-    int merge(int a, int b) {
-        return a + b; // sum segment tree
-    }
-
-    int query(int node, int l, int r, int tl, int tr) {
-        if (l > r) return 0;
-        push(node, tl, tr); 
-        if (l == tl && r == tr) return tree[node];
-        int tm = (tl + tr) >> 1;
-        return merge(query(node*2+1, l, min(r, tm), tl, tm),
-                    query(node*2+2, max(l, tm+1), r, tm+1, tr));
-    }
-
-    void push(int node, int tl, int tr) {
-        if (lazy[node]) {
-            tree[node] += lazy[node] * (tr - tl + 1);
-            if (tl != tr) {
-                lazy[node*2+1] += lazy[node];
-                lazy[node*2+2] += lazy[node];
-            }
-            lazy[node] = 0;
+    long long query(const std::vector<long long>& BIT, int index) {
+        long long sum = 0;
+        while (index >= 0) {
+            sum += BIT[index];
+            index = (index & (index + 1)) - 1;
         }
+        return sum;
     }
-
-    void update(int node, int pos, int tl, int tr, int val) {
-        if (tl == tr) tree[node] += val;
-        else {
-            int tm = (tl + tr) >> 1;
-            push(node, tl, tr);
-            if (pos <= tm) update(node*2+1, pos, tl, tm, val);
-            else update(node*2+2, pos, tm+1, tr, val);
-            tree[node] = merge(tree[node*2+1], tree[node*2+2]);
-        }
-    }
-
-    void rangeUpdate(int node, int l, int r, int tl, int tr, int val) {
-        if (l > r) return;
-        if (l == tl && r == tr) {
-            lazy[node] += val;
-            push(node, tl, tr);
-        } else {
-            int tm = (tl + tr) >> 1;
-            push(node, tl, tr);
-            rangeUpdate(node*2+1, l, min(r, tm), tl, tm, val);
-            rangeUpdate(node*2+2, max(l, tm+1), r, tm+1, tr, val);
-            tree[node] = merge(tree[node*2+1], tree[node*2+2]);
-        }
-    }
-
 public:
-    SegmentTree(int sz) {
-        n = sz;
-        arr.resize(n, 0);
-        tree.resize(4 * n, 0);
-        lazy.resize(4 * n, 0);
+    FenwickTree(int size) : n(size), BIT1(size, 0), BIT2(size, 0) {}
+    void rangeUpdate(int left, int right, long long value) {
+        update(BIT1, left, value);
+        if (right + 1 < n)
+            update(BIT1, right + 1, -value);
+        update(BIT2, left, value * left);
+        if (right + 1 < n)
+            update(BIT2, right + 1, -value * (right + 1));
     }
-
-    int query(int l, int r) {
-        return query(0, l, r, 0, n-1);
+    long long prefixSum(int index) {
+        return query(BIT1, index) * (index + 1) - query(BIT2, index);
     }
-
-    void update(int pos, int val) {
-        update(0, pos, 0, n-1, val);
-    }
-
-    void rangeUpdate(int l, int r, int val) {
-        rangeUpdate(0, l, r, 0, n-1, val);
+    long long query(int left, int right) {
+        if (left == 0)
+            return prefixSum(right);
+        else
+            return prefixSum(right) - prefixSum(left - 1);
     }
 };
 
@@ -97,7 +51,7 @@ int32_t main() {
     int n, q; cin >> n >> q;
 
     vector<vector<int>> adj(n + 1);
-    vector<vector<int>> chains;
+    vector<int> chains;
     for (int i=1, u, v; i<n; i++) {
         cin >> u >> v;
 
@@ -108,29 +62,36 @@ int32_t main() {
     vector<int> depth(n + 1, 0);
     vector<int> chain_idx(n + 1, -1);
 
-    function<void(int, int, int, vector<int>&)> dfs = [&] (int u, int d, int p, vector<int>& c) -> void {
+    function<void(int, int, int, int)> dfs = [&] (int u, int d, int p, int c) -> void {
         depth[u] = d;
 
         for (auto &v : adj[u]) {
             if (v == p) continue;
 
-            c.push_back(v);
+            c++;
             dfs(v, d + 1, u, c);
-            c.pop_back();
+            c--;
         }
 
-        if (u != 1 && adj[u].size() == 1) { // leaf node
+        if (u != 1 && adj[u].size() == 1) { 
             chains.push_back(c);
         }
 
         chain_idx[u] = chains.size() - 1;
     };
 
-    vector<int> c;
+    int c = 0;
     dfs(1, 0, 0, c);
 
-    vector<SegmentTree> Sts(chains.size(), SegmentTree(n + 1));
+    vector<FenwickTree> Sts;
 
+    int max_e = 0;
+    for (int i=0; i<chains.size(); i++) {
+        max_e = max(max_e, chains[i]);
+        Sts.push_back(FenwickTree(chains[i]));
+    }
+
+    FenwickTree global_fenwick(max_e + 1);
     int rt_value = 0;
 
     int tp, v, x, d;
@@ -138,43 +99,31 @@ int32_t main() {
         cin >> tp;
         if (tp == 0) {
             cin >> v >> x >> d;
+            int idx = chain_idx[v];
 
             if (v == 1) {
                 rt_value += x;
-                for (int i=0; i<chains.size(); i++) {
-                    Sts[i].rangeUpdate(0, d - 1, x);
-                }
+                global_fenwick.rangeUpdate(0, d - 1, x);
 
                 continue;
             }
 
-            int idx = chain_idx[v];
-
             if (depth[v] - d >= 0) { 
-                // cout << "update only in its chain: " << v << "(" << idx << ")" << " - " << d << "\n";
                 int lo = max(0LL, depth[v] - d - 1);
-                int hi = min((int) chains[idx].size(), depth[v] + d - 1);
+                int hi = min((int) chains[idx], depth[v] + d - 1);
 
-                // cout << "update: " << idx << ": " << lo << "->" << hi << "\n";
                 Sts[idx].rangeUpdate(lo, hi, x);
-                // cout << "query: " << idx << ": " << depth[v] - 1 << "\n";
 
-                if (depth[v] - d == 0) {
-                    rt_value += x; 
-                    // cout << " update root\n";
-                }
+                if (depth[v] - d == 0) rt_value += x; 
             } else {
-                rt_value += x; // update root
-                // cout << "update other also: " << v << " - " << d << "\n";
-
+                rt_value += x;
                 int rm = d - depth[v];
+                int hi = rm - 1;
 
-                for (int i=0; i<chains.size(); i++) {
-                    int hi = max(0LL, rm - 1 - 1);
-                    if (i == idx) hi = min((int) chains[idx].size(), depth[v] + d - 1);
+                global_fenwick.rangeUpdate(0, hi, x);
 
-                    // cout << "update: " << i << " -> " << hi << "\n"; 
-                    Sts[i].rangeUpdate(0, hi, x);
+                if (hi < (depth[v] + d - 1)) {
+                    Sts[idx].rangeUpdate(hi + 1, depth[v] + d - 1, x);
                 }
             }
         } else if (tp == 1) {
@@ -183,7 +132,7 @@ int32_t main() {
             else {
                 int idx = chain_idx[v];
                 int ans = Sts[idx].query(depth[v] - 1, depth[v] - 1);
-                cout << ans << "\n";
+                cout << ans + global_fenwick.query(depth[v] - 1, depth[v] - 1) << "\n";
             }
         }
     }
