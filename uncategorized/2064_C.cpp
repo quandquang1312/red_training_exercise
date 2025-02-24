@@ -23,7 +23,7 @@ int32_t main() {
             if (arr[i] > 0) {
                 dp_f[i] = dp_f[i - 1] + arr[i]; 
             } else {
-                dp_f[i] = dp_f[i]; 
+                dp_f[i] = dp_f[i - 1]; 
             }
         }
 
@@ -38,7 +38,7 @@ int32_t main() {
         int ans = 0;
         for (int i=1; i<=n; i++) {
             ans = max(ans, dp_f[i] + dp_b[i]);
-            cout << i << ": " << dp_f[i] << "-" << dp_b[i] << "\n";
+            // cout << i << ": " << dp_f[i] << "-" << dp_b[i] << "\n";
         }
 
         cout << ans << "\n";
