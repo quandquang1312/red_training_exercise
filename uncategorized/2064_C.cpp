@@ -20,25 +20,18 @@ int32_t main() {
         vector<int> dp_f(n + 1, 0), dp_b(n + 2, 0);
 
         for (int i=1; i<=n; i++) {
-            if (arr[i] > 0) {
-                dp_f[i] = dp_f[i - 1] + arr[i]; 
-            } else {
-                dp_f[i] = dp_f[i - 1]; 
-            }
+            if (arr[i] > 0) dp_f[i] = dp_f[i - 1] + arr[i]; 
+            else dp_f[i] = dp_f[i - 1]; 
         }
 
         for (int i=n; i>=1; i--) {
-            if (arr[i] < 0) {
-                dp_b[i] = dp_b[i + 1] + abs(arr[i]); 
-            } else {
-                dp_b[i] = dp_b[i + 1];
-            }
+            if (arr[i] < 0) dp_b[i] = dp_b[i + 1] + abs(arr[i]); 
+            else dp_b[i] = dp_b[i + 1];
         }
 
         int ans = 0;
         for (int i=1; i<=n; i++) {
             ans = max(ans, dp_f[i] + dp_b[i]);
-            // cout << i << ": " << dp_f[i] << "-" << dp_b[i] << "\n";
         }
 
         cout << ans << "\n";
