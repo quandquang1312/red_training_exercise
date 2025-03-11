@@ -4,59 +4,49 @@
 using namespace std;
 
 #define int long long
-#define MAXN 10010
-const int INF = 1e5;
 
-int N = 12;
-vector<vector<int>> adj, capacity, take;
+const int MAXN = 15;
+const int INF  = 1e18;
+
+vector<vector<int>> adj, capacity;
+vector<vector<bool>> adj_matrix;
 
 // Maximum Flow
-int bfs(int s, int t, vector<int>& parent, tuple<int, int, int>& fl) {
+int bfs(int source, int sink, vector<int>& parent) {
     fill(parent.begin(), parent.end(), -1);
-    parent[s] = -2;
-    queue<tuple<int, int, int>> q;
-    q.push({s, INF, -1});
+    parent[source] = -2;
+    queue<pair<int, int>> q;
+    q.push({source, INF});
 
     while (!q.empty()) {
-        auto [cur, flow, p] = q.front();
+        auto [u, flow] = q.front();
         q.pop();
 
-        for (int next : adj[cur]) {
-            if (parent[next] == -1 && capacity[cur][next]) {
-                parent[next] = cur;
-                int new_flow = min(flow, capacity[cur][next]);
-                if (next == t) {
-                    fl = {p, cur, new_flow};
-                    return new_flow;
-                }
-                q.push({next, new_flow, cur});
+        for (auto &v : adj[u]) {
+            if (parent[v] == -1 && capacity[u][v] > 0) {
+                parent[v] = u;
+                int new_flow = min(flow, capacity[u][v]);
+                if (v == sink) return new_flow;
+                q.push({v, new_flow});
             }
-        }
+        } 
     }
 
     return 0;
 }
 
-int maxflow(int s, int t, vector<tuple<int, int, int>>& sol) {
+int max_flow(int source, int sink, int total) {
     int flow = 0;
-    vector<int> parent(N);
+    vector<int> parent(total + 1);
     int new_flow;
 
-    sol.clear();
-    tuple<int, int, int> ans;
-
-    while (new_flow = bfs(s, t, parent, ans)) {
+    while (new_flow = bfs(source, sink, parent)) {
         flow += new_flow;
-        int cur = t;
-
-        sol.push_back(ans);
-
-        while (cur != s) {
+        int cur = sink;
+        while (cur != source) {
             int prev = parent[cur];
             capacity[prev][cur] -= new_flow;
             capacity[cur][prev] += new_flow;
-            take[prev][cur] += new_flow;
-            take[cur][prev] -= new_flow;
             cur = prev;
         }
     }
@@ -64,100 +54,80 @@ int maxflow(int s, int t, vector<tuple<int, int, int>>& sol) {
     return flow;
 }
 
-void addEdge(int x, vector<int> vct) {
-    for (auto &e : vct) {
-        adj[x].push_back(e);
-        adj[e].push_back(x);
-        capacity[x][e] = INF;
-    }
-}
-
 int32_t main() {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr); cout.tie(nullptr);
 
-    #ifdef LOCAL
-        freopen("../in.txt", "r", stdin);
-        freopen("../ou.txt", "w", stdout);
-    #endif
-
     int tc; cin >> tc;
     while (tc--) {
-        int n; cin >> n;
+        int n, m = 3; cin >> n;
 
-        adj.clear();
-        adj.assign(N, vector<int>());
-        capacity.assign(N, vector<int>(N, 0));
-        take.assign(N, vector<int>(N, 0));
+        int source = 0, sink = m + 7 + 1;
 
-        // wrapper for 3 gym
-        for (int i=1; i<=3; i++) {
-            adj[0].push_back(i);
-            adj[i].push_back(0);
-            cin >> capacity[0][i];
+        adj.assign(MAXN, vector<int>());
+        capacity.assign(MAXN, vector<int>(MAXN, 0));
+        adj_matrix.assign(MAXN, vector<bool>(MAXN, false));
+
+        vector<int> gym(m + 1);
+        cin >> gym[1] >> gym[2] >> gym[3];
+
+        auto addEdge = [&] (int u, int v, int c=0) -> void {
+            adj[u].push_back(v);
+            adj[v].push_back(u);
+
+            adj_matrix[u][v] = adj_matrix[v][u] = true;
+
+            capacity[u][v] += c;
+        };
+
+        // source to gym
+        for (int i=1; i<=m; i++) {
+            addEdge(source, i, gym[i]);
         }
 
-        // wrapper for the gym to the sets of volunteers
-        addEdge(1, {4, 7, 8, 10});
-        addEdge(2, {5, 7, 9, 10});
-        addEdge(3, {6, 8, 9, 10});
-
-        // wrapper for 7 sets of volunteer to the sink
-        int sk = N - 1;
-        for (int i=4; i<=10; i++) {
-            adj[i].push_back(sk);
-            adj[sk].push_back(i);
-        }
-
-        // add input capacity
-        vector<vector<int>> cnt(n + 1);
-        for (int i=1; i<=3; i++) {
-            int len; cin >> len;
-            while (len--) {
-                int x; cin >> x;
-                cnt[x].push_back(i);
+        vector<int> group(n + 1, 0);
+        for (int i=0; i<m; i++) {
+            int k; cin >> k;
+            for (int j=0, v; j<k; j++) {
+                cin >> v;
+                group[v] |= (1 << i);
             }
         }
 
-        int A = 0, B = 0, C = 0, AB = 0, AC = 0, BC = 0, ABC = 0;
-        vector<vector<int>> sol(11);
+        vector<int> cnt_group(7 + 1, 0);
+        vector<vector<int>> students(7 + 1);
         for (int i=1; i<=n; i++) {
-            if (cnt[i].size() == 1) {
-                if (cnt[i][0] == 1) A++;
-                else if (cnt[i][0] == 2) B++;
-                else C++;
+            cnt_group[group[i]]++;
+            students[group[i]].push_back(i);
+        }
 
-                sol[cnt[i][0] + 3].push_back(i);
-            } else if (cnt[i].size() == 2) {
-                sort(cnt[i].begin(), cnt[i].end());
-                if (cnt[i][0] == 1 && cnt[i][1] == 2) { sol[7].push_back(i), AB++; }
-                else if(cnt[i][0] == 1 && cnt[i][1] == 3) { sol[8].push_back(i), AC++; }
-                else { sol[9].push_back(i), BC++; }
-            } else if (cnt[i].size() == 3) {
-                sol[10].push_back(i);
-                ABC++;
+        // Edge gym to set
+        for (int i=0; i<m; i++) {
+            for (int j=1; j<=7; j++) {
+                if ((1 << i) & j) addEdge(i + 1, j + m, n);
             }
+       }
+
+        // set to sink
+        for (int i=1; i<=7; i++) {
+            addEdge(i + m, sink, cnt_group[i]);
         }
 
-        vector<int> tosk = {A, B, C, AB, AC, BC, ABC};
-        for (int i=0; i<tosk.size(); i++) {
-            capacity[i + 4][sk] += tosk[i];
-        }
+        int ans = max_flow(source, sink, MAXN);
+        cout << ans << "\n";
 
-        vector<tuple<int, int, int>> trace;
-        int ans = maxflow(0, sk, trace);
-
-        cout << ans << endl;
-        vector<vector<int>> idx(N, vector<int>(N, 0));
-        for (auto &e : trace) {
-            auto [gym, st, quant] = e;
-            char g_ch = (gym == 1 ? 'A' : (gym == 2 ? 'B' : 'C'));
-            for (int j=0; j<quant; j++) {
-                cout << sol[st][idx[st][sk]] << " " << g_ch << "\n";
-                idx[st][sk]++;
+        vector<int> nextStudent(7 + 1, 0);
+        for (int i=1; i<=3; i++) {
+            for (int j=m+1; j<=m+7; j++) {
+                if (capacity[i][j] != n && adj_matrix[i][j]) {
+                    int amount = n - capacity[i][j];
+                    for (int k=0; k<amount; k++) {
+                        cout << students[j - m][nextStudent[j - m]] << " " << (char)('A' + (i - 1)) << "\n";
+                        nextStudent[j - m]++; 
+                    }
+                }
             }
-        }
-
+        } 
     }
 
     return 0;
