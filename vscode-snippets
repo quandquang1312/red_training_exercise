@@ -1082,13 +1082,13 @@
 		"description": "Euler Tour"
 	},
 
-	"Edmonds Karp": {
+	"Edmonds_Karp": {
 		"prefix": "_edmonds",
 		"body": [
 			"vector<vector<int>> adj, capacity;",
 			"",
 			"// Maximum Flow",
-			"int bfs(int source, int stink, vector<int>& parent) {",
+			"int bfs(int source, int sink, vector<int>& parent) {",
 			"    fill(parent.begin(), parent.end(), -1);",
 			"    parent[source] = -2;",
 			"    queue<pair<int, int>> q;",
@@ -1102,7 +1102,7 @@
 			"            if (parent[v] == -1 && capacity[u][v] > 0) {",
 			"                parent[v] = u;",
 			"                int new_flow = min(flow, capacity[u][v]);",
-			"                if (v == stink) return new_flow;",
+			"                if (v == sink) return new_flow;",
 			"                q.push({v, new_flow});",
 			"            }",
 			"        } ",
@@ -1111,14 +1111,14 @@
 			"    return 0;",
 			"}",
 			"",
-			"int max_flow(int source, int stink, int total) {",
+			"int max_flow(int source, int sink, int total) {",
 			"    int flow = 0;",
 			"    vector<int> parent(total + 1);",
 			"    int new_flow;",
 			"",
-			"    while (new_flow = bfs(source, stink, parent)) {",
+			"    while (new_flow = bfs(source, sink, parent)) {",
 			"        flow += new_flow;",
-			"        int cur = stink;",
+			"        int cur = sink;",
 			"        while (cur != source) {",
 			"            int prev = parent[cur];",
 			"            capacity[prev][cur] -= new_flow;",
@@ -1128,9 +1128,16 @@
 			"    }",
 			"",
 			"    return flow;",
-			"}"
+			"}",
+			"",
+			"auto addEdge = [&] (int u, int v, int c=0) -> void {",
+			"    adj[u].push_back(v);",
+			"    adj[v].push_back(u);",
+			"",
+			"    capacity[u][v] += c;",
+			"};"
 		],
-		"description": "Edmonds Karp"
+		"description": "Edmonds_Karp"
 	},
 
 	"Dinic": {
