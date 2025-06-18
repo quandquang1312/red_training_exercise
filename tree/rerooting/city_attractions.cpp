@@ -3,6 +3,8 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+#define int long long
+
 const int INF = 1e9;
 
 int32_t main() {
@@ -23,6 +25,7 @@ int32_t main() {
 
     vector<pair<int, int>> dp(n + 1, {-INF, -1});
     vector<pair<int, int>> dp2(n + 1, {-INF, -1});
+    vector<vector<int>> par(n + 1, vector<int>(2, 0));
 
     function<void(int, int)> dfs = [&] (int u, int p) {
         for (auto &v : adj[u]) {
@@ -35,6 +38,8 @@ int32_t main() {
     function<void(int, int)> reroot = [&] (int u, int p) {
         pair<int, int> tmp = {dp2[u].first - 1, dp2[u].second};
         tmp = max(tmp, {arr[u] - 1, -u});
+
+        // attach u to v for every v
         for (int i=0; i<adj[u].size(); i++) {
             int v = adj[u][i];
             dp2[v] = max(dp2[v], tmp);
@@ -58,15 +63,21 @@ int32_t main() {
     dfs(1, 0);
     reroot(1, 0);
 
-    for (int i=1; i<=n; i++) dp[i] = max(dp[i], dp2[i]);
-
-    int cur = 1;
-    for (int i=1; i<=k; i++) {
-        int next = -dp[cur].second;
-        cur = next;
+    for (int i=1; i<=n; i++) {
+        dp[i] = max(dp[i], dp2[i]);
+        par[i][0] = -dp[i].second;
     }
 
-    cout << cur << "\n";
+    int cur = (k & 1 ? par[1][0] : 1);
+    for (int j=1; j<63; j++)
+    {
+        for (int i=1; i<=n; i++)
+        par[i][j & 1] = par[par[i][j - 1 & 1]][j - 1 & 1];
+        if ((k >> j) & 1LL)
+        cur = par[cur][j & 1];
+    }
+
+    cout << cur;
 
     return 0;
 }
