@@ -2,6 +2,7 @@
 using namespace std;
 
 #define int long long
+const int INF = 1e16;
 
 int32_t main() {
     ios_base::sync_with_stdio(false);
@@ -16,33 +17,21 @@ int32_t main() {
         if (arr[i].first < arr[i].second) swap(arr[i].first, arr[i].second);
     }
 
-    auto comp = [&] (const pair<int, int>& p1, const pair<int, int>& p2) {
+    auto comp = [&] (pair<int, int>& p1, pair<int, int>& p2) {
         if (p1.first == p2.first) return p1.second < p2.second;
         return p1.first < p2.first;
     };
 
-    sort(arr.begin(), arr.end(), comp);
+    sort(arr.rbegin(), arr.rend(), comp);
 
-    multiset<pair<int, int>, decltype(comp)> mset(comp);
-
-    for (int i=n-1; i>=0; i--) {
-        if (!mset.size()) {
-            mset.insert({arr[i].first, arr[i].second});
-        } else {
-            auto it = mset.lower_bound({arr[i].first, arr[i].second});
-            if (it != mset.end()) {
-                if (arr[i].second <= it->second) mset.erase(it);
-            }
-            mset.insert({arr[i].first, arr[i].second});
-        }
-
-        // cout << "======\n";
-        // for (auto &e : mset) {
-        //     cout << e.first << " - " << e.second << "\n";
-        // }
+    vector<int> v;
+    for (int i=0; i<n; i++) {
+        int p = lower_bound(v.begin(), v.end(), arr[i].second) - v.begin();
+        if (p == v.size()) v.push_back(arr[i].second);
+        else v[p] = arr[i].second;
     }
 
-    cout << mset.size() << "\n";
+    cout << v.size() << "\n";
 
     return 0;
 }
